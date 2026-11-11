@@ -1,0 +1,68 @@
+# 码域CRM 一键部署：docker compose up -d
+# 访问 http://服务器IP:8080  （PC）/  http://服务器IP:8080/m/ （手机 H5）
+# 默认账号 admin / admin123（首启自动创建；正式使用请立即改密码）
+# AGPL-3.0 © 2026 合肥市码域科技
+services:
+  mysql:
+    image: docker.1ms.run/library/mysql:8.0
+    container_name: maoyu-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: maoyu@2026
+      MYSQL_DATABASE: freecrm
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmaoyu@2026"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: docker.1ms.run/library/redis:7-alpine
+    container_name: maoyu-redis
+    restart: always
+    volumes:
+      - redis-data:/data
+
+  server:
+    build: .
+    container_name: maoyu-server
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/freecrm?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: maoyu@2026
+      SPRING_REDIS_HOST: redis
+      LOGGING_FILE_NAME: /app/logs/freecrm.log
+      FILE_UPLOADDIR: /app/uploads/customer
+    volumes:
+      - uploads:/app/uploads
+      - ./logs:/app/logs
+    # 如需宿主机直连后端调试，取消下两行注释（默认仅容器内网访问）
+    # ports:
+    #   - "48100:48100"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: maoyu-web
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "8090:80"
+
+volumes:
+  mysql-data:
+  redis-data:
+  uploads:

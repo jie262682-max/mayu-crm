@@ -1,0 +1,40 @@
+server:
+  port: 48100
+
+spring:
+  application:
+    name: freecrm
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/freecrm?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: root
+    password: "123456"  # 本地开发库密码，按需修改
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  token-style: uuid
+  is-read-header: true
+  is-read-cookie: false
+
+logging:
+  level:
+    com.freecrm: debug
+
+file:
+  upload-dir: C:/wwwroot/test/freecrm/uploads/customer

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend:
+    name: 后端构建 (JDK 8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+      - name: Maven Package
+        run: mvn -B clean package -DskipTests
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-jar
+          path: freecrm-server/target/*.jar
+          retention-days: 7
+
+  web:
+    name: PC 前端构建
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: freecrm-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: freecrm-web/pnpm-lock.yaml
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm build
+
+  h5:
+    name: 移动端 H5 构建
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: freecrm-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: freecrm-app/pnpm-lock.yaml
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm build:h5

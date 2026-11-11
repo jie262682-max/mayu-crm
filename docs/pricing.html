@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>码域CRM 云服务报价表</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  body { font-family: "Microsoft YaHei", sans-serif; font-size: 12px; color: #262a33; line-height: 1.7; margin: 0; }
+  .cover { text-align: center; padding: 130px 0 0; page-break-after: always; }
+  .cover h1 { font-size: 40px; margin: 0 0 6px; }
+  .cover .sub { font-size: 16px; color: #5a6472; margin-bottom: 70px; }
+  .cover .meta { color: #8a93a3; font-size: 13px; line-height: 2.2; }
+  h1 { font-size: 22px; color: #1f2d3d; border-left: 6px solid #409eff; padding-left: 12px; margin: 24px 0 12px; page-break-before: always; }
+  h2 { font-size: 15px; color: #2c3e50; margin: 18px 0 8px; }
+  p { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 11px; page-break-inside: avoid; }
+  th { background: #f0f5fa; }
+  th, td { border: 1px solid #d7dee8; padding: 6px 8px; text-align: left; vertical-align: top; }
+  .price-big { text-align: center; }
+  .price-big .n { font-size: 30px; font-weight: bold; color: #409eff; }
+  .price-big .u { font-size: 12px; color: #8a93a3; }
+  .tip { background: #f0f9eb; border-left: 4px solid #67c23a; padding: 8px 12px; margin: 8px 0; border-radius: 4px; }
+  .warn { background: #fdf6ec; border-left: 4px solid #e6a23c; padding: 8px 12px; margin: 8px 0; border-radius: 4px; }
+  .hot { color: #fff; background: #e6a23c; border-radius: 9px; padding: 0 8px; font-size: 10px; margin-left: 4px; }
+  .num { text-align: center; font-weight: bold; color: #303846; white-space: nowrap; }
+  .hd { background: #409eff; color: #fff; text-align: center; }
+  footer { text-align: center; color: #8a93a3; font-size: 11px; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>码域CRM 云服务报价表</h1>
+  <div class="sub">CRM · OA 审批 · EAM 资产管理 一体化平台</div>
+  <div class="meta">
+    版本 V1.0<br>有效期至 2027 年 12 月 31 日<br>合肥市码域科技
+  </div>
+</div>
+
+<h1>一、版本总览</h1>
+<table>
+  <tr class="hd"><th style="width:16%">版本</th><th style="width:22%">价格</th><th style="width:24%">适合谁</th><th>核心价值</th></tr>
+  <tr>
+    <td><b>社区版</b><br>（开源自部署）</td>
+    <td class="num">¥ 0<br><span style="font-weight:normal;font-size:10px">永久免费（AGPL-3.0）</span></td>
+    <td>开发者 / 极小团队 / 评估期</td>
+    <td>完整 CRM+OA+EAM 功能、三端源码全开放、Docker 一键部署</td>
+  </tr>
+  <tr>
+    <td><b>云托管 · 标准版</b><span class="hot">最受欢迎</span></td>
+    <td class="price-big"><span class="n">¥299</span><span class="u"> /用户/年</span><br><span class="u">（或 ¥30 /用户/月）</span></td>
+    <td>5-50 人中小企业</td>
+    <td>免运维开箱即用：自动备份 / 自动升级 / HTTPS / 移动端全套</td>
+  </tr>
+  <tr>
+    <td><b>云托管 · 专业版</b></td>
+    <td class="price-big"><span class="n">¥599</span><span class="u"> /用户/年</span><br><span class="u">（20 用户起）</span></td>
+    <td>50-300 人成长型企业</td>
+    <td>标准版全部 + Pro 功能包 + 钉钉/企微连接器 + SLA 工单支持</td>
+  </tr>
+  <tr>
+    <td><b>企业版</b><br>（私有部署 Pro）</td>
+    <td class="num">¥ 20,000 /年起<br><span style="font-weight:normal;font-size:10px">含 1 年升级与支持，续费 40%</span></td>
+    <td>数据必须自持的组织</td>
+    <td>闭源 Pro 模块 + 专属实施协助 + 升级保障</td>
+  </tr>
+  <tr>
+    <td><b>商业授权</b><br>（OEM / 闭源分发）</td>
+    <td class="num">¥ 50,000 /年起</td>
+    <td>集成商 / 软件服务商</td>
+    <td>脱离 AGPL 义务：可修改闭源、贴牌销售、内置自家产品</td>
+  </tr>
+</table>
+<div class="tip"><b>为什么比同类便宜：</b>我们按"不到同类开源 CRM 云版 6 折"定价（同类团队版普遍 ¥560/用户/年），且<b>不按模块收费、不限制功能开关</b>——标准版即含 CRM+OA+EAM 全部业务功能。</div>
+
+<h1>二、功能对比明细</h1>
+<table>
+  <tr class="hd"><th style="width:34%">功能</th><th>社区版</th><th>云·标准</th><th>云·专业 / 企业版</th></tr>
+  <tr><td>线索 / 客户 / 联系人 / 跟进 / 公海</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>商机 / 合同 / 回款 / 产品 / 合同明细</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>审批流（或签 / 会签 / 金额条件分支）</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>EAM 资产管理（领用 / 盘点 / 折旧 / 报废审批）</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>站内信 / 阿里云短信（自配 AK）</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>Excel 导入导出 / 操作日志 / 登录日志</td><td class="num">✓</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>PC + 手机 H5 + 微信小程序</td><td class="num">✓ 源码</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td>自动备份 / 自动升级 / HTTPS / 免运维</td><td class="num">—</td><td class="num">✓</td><td class="num">✓</td></tr>
+  <tr><td><b>多公司 / 多租户</b></td><td class="num">—</td><td class="num">—</td><td class="num">✓</td></tr>
+  <tr><td><b>钉钉 / 企业微信 扫码登录 + 消息推送</b></td><td class="num">—</td><td class="num">—</td><td class="num">✓</td></tr>
+  <tr><td><b>自定义报表设计器 / 数据大屏</b></td><td class="num">固定四图</td><td class="num">固定四图</td><td class="num">✓</td></tr>
+  <tr><td><b>API 开放平台（Webhook / 开放接口）</b></td><td class="num">—</td><td class="num">—</td><td class="num">✓</td></tr>
+  <tr><td><b>高级审计（字段级日志 / 数据水印）</b></td><td class="num">—</td><td class="num">—</td><td class="num">✓</td></tr>
+  <tr><td>工单支持 SLA（响应时效 / 升级保障）</td><td class="num">社区</td><td class="num">邮件</td><td class="num">✓ 专属</td></tr>
+  <tr><td>商业闭源使用 / OEM 贴牌授权</td><td class="num">AGPL 限制</td><td class="num">—</td><td class="num">✓ 另计</td></tr>
+</table>
+
+<h1>三、增值服务</h1>
+<table>
+  <tr class="hd"><th style="width:30%">项目</th><th style="width:26%">价格</th><th>说明</th></tr>
+  <tr><td>行业实施包（首推教培）</td><td class="num">¥15,000 – 80,000 /项目</td><td>行业流程模板 + 字段配置 + 上线陪跑；按行业复杂度报价</td></tr>
+  <tr><td>数据迁移服务</td><td class="num">¥3,000 起</td><td>从 Salesforce / 纷享销客 / Excel 等迁移客户与历史数据</td></tr>
+  <tr><td>定制开发</td><td class="num">¥1,500 /人天</td><td>按需求评估；交付代码含商业使用授权</td></tr>
+  <tr><td>短信 / 云存储资源包</td><td class="num">成本 + 10%</td><td>云版用户可托管代购阿里云短信、对象存储</td></tr>
+  <tr><td>培训（线上 / 驻场）</td><td class="num">¥2,000 /场 · ¥6,000 /天</td><td>管理员配置培训、销售团队上手培训</td></tr>
+</table>
+
+<h1>四、常见问题</h1>
+<table>
+  <tr><th style="width:34%">问题</th><th>回答</th></tr>
+  <tr><td>数据安全吗？能导出吗？</td><td>云端数据加密存储、每日备份；<b>支持全量导出随时带走</b>——我们靠产品留人，不靠数据锁人。</td></tr>
+  <tr><td>社区版和云版功能有差别吗？</td><td>业务功能<b>完全一致</b>（CRM+OA+EAM 全量）。云版多的是免运维与备份升级；专业版多的是企业集成与治理能力。</td></tr>
+  <tr><td>最低几个用户起售？</td><td>云·标准版 3 用户起；年付有 2 个月赠送（付 10 个月用 12 个月）。</td></tr>
+  <tr><td>可以先试用吗？</td><td>14 天全功能免费试用（无需信用卡）；也有每日重置的在线演示站。</td></tr>
+  <tr><td>我们是软件公司想集成进自己产品？</td><td>选择 OEM 商业授权（¥5 万/年起），可闭源修改、贴牌销售，不受 AGPL 约束，含对接培训。</td></tr>
+  <tr><td>续费涨价吗？</td><td>老用户按首次签约价续费，产品涨价不影响存量合同。</td></tr>
+  <tr><td>怎么付款 / 开票？</td><td>对公转账 / 微信 / 支付宝；增值税普票与专票均可。</td></tr>
+</table>
+
+<h1>五、购买方式</h1>
+<table>
+  <tr><th style="width:26%">渠道</th><th>信息</th></tr>
+  <tr><td>演示环境</td><td>https://crm.hefeicode.com（每日重置，账号见演示页）</td></tr>
+  <tr><td>开源仓库</td><td>Gitee / GitHub 搜索「码域CRM」（AGPL-3.0）</td></tr>
+  <tr><td>商务咨询</td><td>官网在线表单 / 微信公众号「码域科技」</td></tr>
+</table>
+<div class="warn"><b>报价说明：</b>本表为标准刊例价，最终以合同为准；批量采购（50 用户以上）与教育/公益机构有专项折扣；价格自报价之日起 90 天内有效。</div>
+
+<footer>— 码域CRM 云服务报价表 · 合肥市码域科技 · 未经许可请勿外传 —</footer>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>码域CRM 产品说明手册</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 12px; color: #262a33; line-height: 1.75; margin: 0; }
+  .cover { text-align: center; padding: 150px 0 0; page-break-after: always; }
+  .cover h1 { font-size: 44px; letter-spacing: 4px; margin-bottom: 8px; }
+  .cover .sub { font-size: 18px; color: #5a6472; margin-bottom: 60px; }
+  .cover .ver { color: #8a93a3; font-size: 13px; line-height: 2.2; }
+  .cover .brand { margin-top: 120px; color: #409eff; font-size: 15px; font-weight: bold; }
+  h1 { font-size: 24px; color: #1f2d3d; border-left: 6px solid #409eff; padding-left: 12px; margin: 28px 0 14px; page-break-before: always; }
+  h2 { font-size: 16px; color: #2c3e50; margin: 20px 0 8px; border-bottom: 2px solid #e4e9f0; padding-bottom: 4px; }
+  h3 { font-size: 13.5px; color: #34495e; margin: 14px 0 6px; }
+  p { margin: 6px 0; text-align: justify; }
+  ul, ol { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 11px; page-break-inside: avoid; }
+  th { background: #f0f5fa; }
+  th, td { border: 1px solid #d7dee8; padding: 6px 8px; text-align: left; vertical-align: top; }
+  .tip { background: #f0f9eb; border-left: 4px solid #67c23a; padding: 8px 12px; margin: 8px 0; border-radius: 4px; }
+  .warn { background: #fdf6ec; border-left: 4px solid #e6a23c; padding: 8px 12px; margin: 8px 0; border-radius: 4px; }
+  .step { background: #f5f8fc; border: 1px solid #e4ecf5; border-radius: 6px; padding: 8px 14px; margin: 8px 0; }
+  .step b { color: #409eff; }
+  code { background: #f2f4f7; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .toc { page-break-after: always; }
+  .toc li { margin: 5px 0; }
+  .tag { display: inline-block; background: #409eff; color: #fff; border-radius: 10px; padding: 0 8px; font-size: 10px; margin-right: 4px; }
+  .tag.pc { background: #409eff; } .tag.h5 { background: #67c23a; } .tag.mp { background: #909399; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>码域CRM</h1>
+  <div class="sub">客户关系管理 · OA 协同办公 · EAM 资产管理 一体化平台</div>
+  <div class="ver">
+    产品说明手册<br>
+    版本 V1.0<br>
+    2026 年 11 月
+  </div>
+  <div class="brand">合肥市码域科技</div>
+</div>
+
+<div class="toc">
+  <h1>目 录</h1>
+  <ol>
+    <li>产品概述（功能地图 / 三端入口 / 角色与账号）</li>
+    <li>快速上手（登录 PC / 手机 H5 / 微信小程序）</li>
+    <li>线索管理（录入 / 跟进 / 转化客户）</li>
+    <li>客户管理（查重合并 / 团队权限 / 公海 / 资料上传 / 跟进与附件）</li>
+    <li>联系人管理</li>
+    <li>商机管理（阶段推进 / 赢单输单 / 阶段组配置）</li>
+    <li>产品与合同（产品库 / 合同台账 / 产品明细行）</li>
+    <li>回款管理（回款计划 / 回款录入 / 审批累计 / 超额拦截）</li>
+    <li>审批流（待办处理 / 审批详情 / 撤回 / 流程定义：或签·会签·条件分支）</li>
+    <li>EAM 资产管理（台账 / 领用退回 / 借出归还 / 报修 / 报废审批 / 盘点 / 折旧）</li>
+    <li>消息通知（站内信 / 阿里云短信配置）</li>
+    <li>统计报表</li>
+    <li>Excel 导入导出</li>
+    <li>系统管理（用户 / 角色授权 / 菜单 / 部门 / 系统设置 / 操作日志 / 登录日志）</li>
+    <li>常见问题 FAQ</li>
+    <li>附录（演示账号 / 业务规则速查 / 端口地址）</li>
+  </ol>
+</div>
+
+<h1>一、产品概述</h1>
+<h2>1.1 产品定位</h2>
+<p>码域CRM 是一套面向中小企业的一体化经营管理平台，覆盖<strong>「市场获客 → 销售跟进 → 合同回款 → 协同审批 → 资产管理」</strong>全流程。系统包含三大业务中心：</p>
+<table>
+  <tr><th style="width:18%">中心</th><th style="width:42%">覆盖能力</th><th>说明</th></tr>
+  <tr><td><b>CRM 客户管理</b></td><td>线索、客户、联系人、跟进、公海、商机、产品、合同、回款、统计报表</td><td>销售全链路，线索到回款闭环</td></tr>
+  <tr><td><b>OA 协同办公</b></td><td>审批流引擎（或签/会签/条件分支）、待办、我的申请、请假、消息通知、短信</td><td>合同/回款/请假/资产报废自动走审批</td></tr>
+  <tr><td><b>EAM 资产管理</b></td><td>资产台账、领用/退回/借出/归还、报修、报废审批、盘点、月度折旧</td><td>固定资产全生命周期</td></tr>
+</table>
+
+<h2>1.2 三端入口</h2>
+<table>
+  <tr><th>端</th><th>地址 / 方式</th><th>适用场景</th></tr>
+  <tr><td>PC 管理端</td><td>https://crm.hefeicode.com</td><td>日常管理全功能</td></tr>
+  <tr><td>手机 H5</td><td>https://crm.hefeicode.com/m/</td><td>手机浏览器直接打开，移动办公</td></tr>
+  <tr><td>微信小程序</td><td>微信开发者工具导入项目 dist/build/mp-weixin（正式发布需申请小程序 AppID）</td><td>微信内使用</td></tr>
+</table>
+<p>三端账号通用、数据实时同步。<span class="tag pc">PC</span><span class="tag h5">H5</span><span class="tag mp">小程序</span> 标记表示该功能在哪些端可用。</p>
+
+<h2>1.3 角色与账号（演示环境）</h2>
+<table>
+  <tr><th>账号</th><th>姓名</th><th>角色</th><th>典型用途</th></tr>
+  <tr><td>admin</td><td>管理员</td><td>超级管理员</td><td>全部功能、系统管理、全局统计</td></tr>
+  <tr><td>zhang3</td><td>张三</td><td>销售经理</td><td>合同审核、流程定义、EAM 管理</td></tr>
+  <tr><td>wang5 / zhao6</td><td>王五 / 赵六</td><td>销售员</td><td>客户跟进、合同提交、资产领用</td></tr>
+  <tr><td>hrzhou</td><td>周蕙</td><td>人事</td><td>用户管理、请假审批</td></tr>
+  <tr><td>finwu</td><td>吴敏</td><td>财务</td><td>回款审批、合同审核</td></tr>
+  <tr><td>li7 / guest</td><td>李七 / 顾客</td><td>只读</td><td>仅查看，无写权限</td></tr>
+</table>
+<div class="warn">演示账号密码统一为 <code>admin123</code>，正式使用后请立即在「系统管理 → 用户管理」修改密码。</div>
+
+<h1>二、快速上手</h1>
+<h2>2.1 PC 端登录 <span class="tag pc">PC</span></h2>
+<div class="step"><b>步骤：</b>① 打开 https://crm.hefeicode.com → ② 输入用户名、密码 → ③ 点击「登 录」→ 进入系统主页（默认打开用户管理）。</div>
+<p>左侧为功能菜单（按角色动态显示），顶部右侧 <b>铃铛图标</b>显示未读消息数（每 30 秒自动刷新），点击进入消息中心。</p>
+
+<h2>2.2 手机 H5 登录 <span class="tag h5">H5</span></h2>
+<div class="step"><b>步骤：</b>① 手机浏览器打开 https://crm.hefeicode.com/m/ → ② 输入账号密码 → ③ 登录后底部导航：<b>客户 / 待办 / 资产 / 我的</b>。</div>
+<div class="tip">建议「添加到主屏幕」，使用体验接近原生 App。</div>
+
+<h2>2.3 微信小程序 <span class="tag mp">小程序</span></h2>
+<div class="step"><b>步骤：</b>① 微信开发者工具 → 导入项目 → 目录选择 freecrm-app/dist/build/mp-weixin → ② AppID 使用测试号或自有 AppID → ③ 详情-本地设置勾选「不校验合法域名」→ ④ 编译运行。正式发布需在小程序管理后台配置 request 合法域名（https://crm.hefeicode.com）。</div>
+
+<h1>三、线索管理</h1>
+<p>线索是未确认的潜在客户信息，来源于电话咨询、官网表单、展会名片等 6 类渠道。</p>
+<h2>3.1 新建线索 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>CRM 客户管理 → 线索管理 → 「新建线索」→ 填写线索名称（必填）、联系人、手机、邮箱、来源、行业 → 保存。</div>
+<h2>3.2 线索跟进 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>线索列表 → 「跟进」→ 查看时间线 → 在「写跟进」区填写内容 → 提交。</div>
+<h2>3.3 转化为客户 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>线索列表 → 「转化」→ 确认。</div>
+<p>转化后系统自动：<b>① 创建客户</b>（线索信息带入）；<b>② 创建联系人</b>（线索联系人转入）；<b>③ 迁移全部跟进记录</b>到新客户名下。线索标记为已转化，不可重复转化。</p>
+
+<h1>四、客户管理</h1>
+<h2>4.1 客户查重与合并 <span class="tag pc">PC</span></h2>
+<div class="step"><b>查重：</b>客户管理 → 「查重」→ 输入名称或手机号 → 列出疑似重复客户。</div>
+<div class="step"><b>合并：</b>查重结果中点「设为保留」选择保留客户 → 点其他客户的「并入保留客户」→ 确认。被并客户的<b>联系人、跟进、商机、合同全部迁移</b>到保留客户后删除。Excel 导入时同名客户自动跳过。</div>
+<h2>4.2 客户资料上传（多文件）<span class="tag pc">PC <span class="tag h5">H5/小程序</span></h2>
+<div class="step"><b>PC：</b>客户列表 → 「资料」→ 「选择文件（可多选）」→ 点「上传 N 个文件」。支持列表查看、下载、删除。</div>
+<div class="step"><b>手机：</b>客户详情 → 「客户资料」区 → 「上传资料（可多选）」→ 选择文件自动上传；点击文件名下载。</div>
+<div class="warn">单个文件不超过 20MB。下载权限：团队成员可下载，非团队成员被拒绝。</div>
+<h2>4.3 跟进与附件 <span class="tag pc">PC <span class="tag h5">H5</span></h2>
+<div class="step"><b>PC：</b>客户列表 → 「跟进」→ 写跟进区可点「📎 添加附件（可多选）」→ 提交跟进时附件一起上传，附件挂在<b>该条跟进记录</b>下，时间线中显示 📎 标签，点击直接下载。</div>
+<div class="step"><b>H5：</b>客户详情 → 「写跟进」选类型（电话/拜访/微信）→ 填内容 → 可选「下次联系日期」→ 📎 加附件 → 提交。</div>
+<div class="tip">每次跟进自动刷新客户「最后联系时间」；填了下次联系日期会同步到客户字段。</div>
+<h2>4.4 团队数据权限（三级）</h2>
+<table>
+  <tr><th>级别</th><th>能力</th></tr>
+  <tr><td>负责人 OWNER</td><td>全部操作，含转移、删除</td></tr>
+  <tr><td>可写 WRITE</td><td>编辑、跟进、上传资料、录合同回款</td></tr>
+  <tr><td>只读 READ</td><td>仅查看和下载资料</td></tr>
+</table>
+<p>商机、合同、回款权限<b>跟随所属客户</b>的团队设置。PC 客户列表「团队」入口可添加/移除成员并设置级别。</p>
+<h2>4.5 公海机制 <span class="tag pc">PC</span></h2>
+<div class="step"><b>放入公海：</b>客户列表 → 「放公海」→ 负责人清空、团队解散，客户进入公海池。</div>
+<div class="step"><b>领取：</b>公海客户 → 「领取」→ 领取人成为新负责人。</div>
+<div class="warn">已成交客户、锁定客户不能放入公海。</div>
+<h2>4.6 公海自动回收</h2>
+<p>系统每小时自动检查（规则在「系统管理 → 系统设置」配置）：</p>
+<ul>
+  <li><b>掉保回收：</b>超过 N 天（默认 30）未跟进的客户自动入公海；</li>
+  <li><b>超期回收：</b>创建超过 N 天（默认 90）未成交的客户自动入公海；</li>
+  <li>回收后系统向原负责人发送站内信通知；已成交 / 已锁定客户不回收。</li>
+</ul>
+
+<h1>五、联系人管理</h1>
+<div class="step"><b>路径：</b>客户管理 → 客户列表 → 「联系人」→ 「新增联系人」→ 填写姓名、手机、职务、<b>决策角色</b>（决策者/影响者/使用者/教练）、邮箱。</div>
+<p>客户详情页（H5）同样展示联系人。转化线索时联系人自动带入。</p>
+
+<h1>六、商机管理</h1>
+<h2>6.1 阶段组与阶段 <span class="tag pc">PC</span></h2>
+<p>商机按「阶段组」推进（内置：标准销售流程 / 大客户流程）。每个阶段有名称、赢率（百分比）、顺序。可在商机管理页维护阶段组。</p>
+<h2>6.2 创建与推进商机 <span class="tag pc">PC</span></h2>
+<div class="step"><b>创建：</b>商机管理 → 「新建商机」→ 选客户、阶段组、预计金额、预计成交日期。</div>
+<div class="step"><b>推进：</b>商机列表 → 「推进」→ 选择下一阶段。阶段按顺序推进。</div>
+<h2>6.3 赢单 / 输单</h2>
+<div class="step"><b>结束：</b>商机列表 → 「结束」→ 选<b>赢单</b>或<b>输单</b>。</div>
+<div class="tip">商机<b>赢单</b>后，所属客户自动标记为「已成交」。</div>
+
+<h1>七、产品与合同</h1>
+<h2>7.1 产品库 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>产品管理 → 新建产品（名称、编号、分类、价格、单位：件/套/年/次、状态上架/下架）。支持多级产品分类。</div>
+<h2>7.2 合同台账 <span class="tag pc">PC</span></h2>
+<div class="step"><b>新建合同：</b>合同管理 → 「新建合同」→ 填合同名、客户、总金额、下单日期。合同编号自动生成（HT+日期+序号）。</div>
+<p>合同状态机：<b>草稿(0) → 审批中(1) → 已通过(2) / 已驳回(3)</b>。仅草稿可编辑；已进入审批的合同锁定。</p>
+<h2>7.3 合同产品明细行 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>合同列表 → 「明细」→ 选择产品（自动带出单价）→ 输入数量 → 「添加」→ 实时显示小计与合计 → 「保存明细」。</div>
+<div class="tip">草稿状态可编辑明细；进入审批后明细只读。</div>
+
+<h1>八、回款管理</h1>
+<h2>8.1 回款计划 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>合同列表 → 「计划」→ 填期数、回款日、金额 → 「加计划」。</div>
+<h2>8.2 录入回款 <span class="tag pc">PC</span></h2>
+<div class="step"><b>前置条件：合同必须「已通过」审批。</b>合同列表 → 「回款」→ 填回款日期、金额、方式（对公转账/现金/微信/支付宝/其他）→ 保存。</div>
+<p>回款保存后自动进入<b>回款审批流</b>；审批通过后合同「已回款」自动累计。驳回的回款不累计。</p>
+<div class="warn"><b>硬性拦截：</b>① 未通过审批的合同不能录回款；② 回款累计不得超过合同总额（超额直接拒绝并回滚）。</div>
+
+<h1>九、审批流</h1>
+<h2>9.1 我的待办 <span class="tag pc">PC <span class="tag h5">H5</span></h2>
+<div class="step"><b>PC：</b>OA 协同办公 → 我的待办 → 列表显示每级待审任务（含业务单摘要：合同号/请假事由等）。</div>
+<div class="step"><b>H5：</b>底部「待办」tab → 点任务卡片 → 查看业务单详情 + 审批轨迹（每级审批人/意见/时间）→ 填意见 → 「同意」或「驳回」。</div>
+<h2>9.2 审批规则（业务自动触发）</h2>
+<table>
+  <tr><th>业务</th><th>触发时机</th><th>审批通过后</th></tr>
+  <tr><td>合同审批</td><td>合同「提审」</td><td>合同 → 已通过，可录回款</td></tr>
+  <tr><td>回款审批</td><td>录入回款单</td><td>合同已回款累计</td></tr>
+  <tr><td>请假审批</td><td>发起请假</td><td>请假单 → 已通过</td></tr>
+  <tr><td>资产报废</td><td>资产「报废」</td><td>资产 → 报废状态</td></tr>
+</table>
+<h2>9.3 撤回 <span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>OA → 我的申请 → 找到进行中的流程 → 「撤回」（仅申请人本人可撤，流程结束后不可撤）。</div>
+<h2>9.4 流程定义（管理员）<span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>OA → 流程定义 → 编辑/新建 → 按顺序添加节点：</div>
+<ul>
+  <li><b>审批节点</b>：选审批人（多选）+ 签署方式：<b>或签</b>（任一人通过即过级）或 <b>会签</b>（全部通过才过级，多人同时收到待办即并行）；</li>
+  <li><b>条件节点</b>：按业务金额路由，如 <code>amount >= 50000</code> 跳到「总监会签」，否则直达「总经理」。可用变量：<code>amount</code>（合同/回款金额）、<code>contractAmount</code>、<code>days</code>（请假天数）。</li>
+</ul>
+<div class="tip">示例：合同审批 = 销售经理(或签) → 金额分支（≥5万 → 总监会签(2人) → 总经理；<5万 → 直达总经理）。未配置流程时：合同走负责人人工审核，回款自动通过。</div>
+
+<h1>十、EAM 资产管理</h1>
+<h2>10.1 资产台账 <span class="tag pc">PC</span></h2>
+<div class="step"><b>新建：</b>EAM → 资产台账 → 「新增资产」→ 填名称、分类、型号、序列号、购置日期/金额、折旧年限、部门、位置。资产编号自动生成（ZC+日期）。</div>
+<p>资产四种状态：<b>闲置 / 在用 / 维修 / 报废</b>。</p>
+<h2>10.2 领用 / 退回 / 借出 / 归还 <span class="tag pc">PC <span class="tag h5">H5/小程序</span></h2>
+<div class="step"><b>PC：</b>资产台账行内操作 → 「领用」（输入领用人ID，留空=自己）、「退回」、「借出」（输入借用人ID）。</div>
+<div class="step"><b>H5：</b>「资产」tab → 闲置资产卡片上「我要领用」一键领取；详情页可「领用 / 退回 / 报修」。</div>
+<p>每次操作自动记录变更：<b>类型、从谁到谁、原因、时间</b>，资产详情「变更历史」完整可查。</p>
+<h2>10.3 报修与维修完成 <span class="tag pc">PC</span></h2>
+<div class="step">「报修」（填原因）→ 状态转「维修」→ 维修完成后「修完」→ 回到「闲置」。</div>
+<h2>10.4 报废（走审批）<span class="tag pc">PC</span></h2>
+<div class="step">「报废」→ 填原因 → 若配置了报废流程自动进入审批；审批通过后资产置为「报废」。</div>
+<h2>10.5 资产盘点 <span class="tag pc">PC</span></h2>
+<div class="step">① 「创建盘点单」选范围（全部 / 按部门）→ 系统快照资产账面状态；② 打开盘点单「明细」逐项实盘：选实际状态（闲置/在用/维修/盘亏）→「提交实盘」，不一致自动标记<b>差异</b>；③ 「仅差异」可只看差异项；④ 全部盘完后「完成盘点」，单据显示总数/差异数。</div>
+<h2>10.6 月度折旧</h2>
+<p><b>直线法，残值率 5%</b>：月折旧 =（购置金额 × 95%）÷（年限 × 12）。每月 1 日凌晨自动生成上月折旧（幂等，重复执行不重复生成）；净值降到残值后自动停提。折旧记录页可按月查询、可「手动生成上月折旧」补算。</p>
+
+<h1>十一、消息通知</h1>
+<h2>11.1 站内信 <span class="tag pc">PC <span class="tag h5">H5</span></h2>
+<p>自动触发场景：① 审批待办（发给审批人）；② 审批结果（通过/驳回/撤回，发给申请人）；③ 公海回收（发给原负责人）。</p>
+<div class="step"><b>PC：</b>顶栏铃铛显示未读数 → 点击进入「我的消息」→ 可单条已读 / 全部已读，审批待办消息可「去处理」直达。</div>
+<div class="step"><b>H5：</b>「我的」→「我的消息」。</div>
+<h2>11.2 阿里云短信（管理员配置）<span class="tag pc">PC</span></h2>
+<div class="step"><b>路径：</b>系统管理 → 系统设置 → 「阿里云短信」页签 → 填写：</div>
+<ul>
+  <li>AccessKeyId / AccessKeySecret（阿里云 RAM 账号密钥，Secret 保存后脱敏显示）</li>
+  <li>短信签名（如：合肥市码域科技）</li>
+  <li>模板 Code（如 SMS_xxxxxxxx）</li>
+  <li>启用开关 + 「审批待办短信通知」开关</li>
+</ul>
+<div class="step"><b>测试：</b>输入手机号 → 「发送测试」→ 下方「发送记录」查看成功/失败及原因。配置即时生效，无需重启。</div>
+<div class="warn">短信模板需在阿里云控制台申请；验证码类模板仅适用验证码场景，审批通知请申请<b>通知类模板</b>（变量名需与系统配置一致，可在数据库 sys_config 的 sms.var.name 调整）。</div>
+
+<h1>十二、统计报表 <span class="tag pc">PC</span></h1>
+<table>
+  <tr><th>图表</th><th>内容</th></tr>
+  <tr><td>顶部卡片</td><td>我的客户数 / 进行中商机金额 / 合同总额 / 已回款</td></tr>
+  <tr><td>近 30 天新增客户</td><td>趋势折线图</td></tr>
+  <tr><td>销售排行</td><td>按负责人的合同金额 TOP10</td></tr>
+  <tr><td>商机漏斗</td><td>各阶段商机数与金额合计</td></tr>
+</table>
+<p>普通员工统计范围 = 自己团队可见客户；超级管理员查看全公司数据。</p>
+
+<h1>十三、Excel 导入导出 <span class="tag pc">PC</span></h1>
+<div class="step"><b>路径：</b>客户管理 → 「导入/导出」下拉：</div>
+<ul>
+  <li><b>下载导入模板</b>：含表头与示例行（示例行导入时自动跳过）；</li>
+  <li><b>导入客户 Excel</b>：选择填好的 xlsx → 逐行校验（名称必填、与已有客户重名跳过）→ 提示成功 N 条 / 跳过 N 条 / 错误行明细；</li>
+  <li><b>导出客户 / 线索 / 合同</b>：导出当前账号权限范围内的数据。</li>
+</ul>
+
+<h1>十四、系统管理 <span class="tag pc">PC</span></h1>
+<h2>14.1 用户管理</h2>
+<div class="step">新建用户（用户名+初始密码必填，选部门）；编辑资料；删除用户。修改密码：编辑用户时填写新密码。</div>
+<h2>14.2 角色管理与菜单授权</h2>
+<div class="step">① 角色管理 → 「新建角色」（名称/编码）；② 点「菜单授权」→ 树形勾选该角色可见的页面与<b>按钮级权限</b>（如「线索转化」「合同审核」）→ 保存。③ 该角色用户<b>重新登录后生效</b>。</div>
+<div class="tip">勾选树中的灰色小项（按钮）是操作权限，不显示在菜单里；父级半选表示部分子项已授权。</div>
+<h2>14.3 菜单管理</h2>
+<p>维护页面菜单（目录/页面/按钮三级）：路径、组件、权限码、图标、排序、是否侧栏可见。一般无需改动。</p>
+<h2>14.4 部门管理</h2>
+<p>树形部门，支持加子部门、编辑、删除（有子部门需先删子部门）。部门用于用户归属与资产使用部门。</p>
+<h2>14.5 系统设置</h2>
+<ul>
+  <li><b>公海回收规则</b>：掉保天数 / 超期天数；</li>
+  <li><b>阿里云短信</b>：见第十一章。</li>
+</ul>
+<h2>14.6 操作日志 / 登录日志</h2>
+<p>操作日志记录关键动作（保存/删除/审批/导入导出/上传等）：操作人、模块、动作、参数（点行展开）、成功失败、耗时、IP。登录日志记录每次登录成功/失败与 IP。</p>
+
+<h1>十五、常见问题 FAQ</h1>
+<table>
+  <tr><th style="width:38%">问题</th><th>解答</th></tr>
+  <tr><td>登录后菜单是空的？</td><td>该角色未被授权任何菜单，找管理员在「角色管理 → 菜单授权」勾选后重新登录。</td></tr>
+  <tr><td>看不到某个客户/合同？</td><td>数据权限所致：只有客户团队成员可见。让负责人在「团队」中把你加为可写或只读。</td></tr>
+  <tr><td>提示「没有操作权限：xxx」？</td><td>缺少对应按钮权限，管理员在角色授权树中勾选对应按钮项。</td></tr>
+  <tr><td>合同提交后没有进入待办？</td><td>检查 OA → 流程定义中该业务是否有「启用」状态的流程；未配置时合同由负责人在列表直接「通过/驳回」。</td></tr>
+  <tr><td>录回款提示「合同未审核通过」？</td><td>正常拦截：先完成合同审批。</td></tr>
+  <tr><td>录回款提示「超过合同总额」？</td><td>正常拦截：已回款 + 本次 &gt; 合同总额。检查是否有重复录入。</td></tr>
+  <tr><td>会签节点一人通过后流程没动？</td><td>会签需<b>全部</b>审批人通过才推进，查看待办是否还有同节点其他人的任务。</td></tr>
+  <tr><td>手机端资产列表空白？</td><td>该角色无 EAM 权限，管理员为其角色勾选「EAM 资产管理」相关菜单。</td></tr>
+  <tr><td>短信测试失败？</td><td>在「系统设置 → 发送记录」查看具体错误：常见为 AK 无权限、签名/模板不一致、手机号无效（无效号不产生计费）。</td></tr>
+  <tr><td>Excel 导入全部被跳过？</td><td>与现有客户重名或首列为空；模板中的示例行也会被跳过，属正常。</td></tr>
+  <tr><td>网页刷新后白屏/功能异常？</td><td>强制刷新（Ctrl+F5）清缓存；H5 直跳子页面需刷新一次，从入口点击导航则正常。</td></tr>
+</table>
+
+<h1>十六、附录</h1>
+<h2>16.1 地址与端口</h2>
+<table>
+  <tr><th>项</th><th>值</th></tr>
+  <tr><td>PC 管理端</td><td>https://crm.hefeicode.com</td></tr>
+  <tr><td>手机 H5</td><td>https://crm.hefeicode.com/m/</td></tr>
+  <tr><td>后端 API</td><td>https://crm.hefeicode.com/api/（同域反代）</td></tr>
+  <tr><td>产品手册 PDF</td><td>https://crm.hefeicode.com/manual.pdf</td></tr>
+  <tr><td>云服务报价表 PDF</td><td>https://crm.hefeicode.com/pricing.pdf</td></tr>
+</table>
+
+<h2>16.2 测试账号与密码（三端通用，密码统一 admin123）</h2>
+<table>
+  <tr><th style="width:15%">账号</th><th style="width:13%">密码</th><th style="width:19%">姓名</th><th style="width:15%">角色</th><th>典型用途</th></tr>
+  <tr><td><b>admin</b></td><td>admin123</td><td>管理员</td><td>超级管理员</td><td>全部功能、系统管理、全局统计、短信配置、审批终审</td></tr>
+  <tr><td><b>zhang3</b></td><td>admin123</td><td>张三（销售总监）</td><td>销售经理</td><td>合同一级审批、流程定义、EAM 管理</td></tr>
+  <tr><td><b>wang5</b></td><td>admin123</td><td>王五（华东销售）</td><td>销售员</td><td>客户跟进/附件/资料上传、合同提审、资产领用；只见自己团队客户（数据权限演示）</td></tr>
+  <tr><td><b>zhao6</b></td><td>admin123</td><td>赵六（华南销售）</td><td>销售员</td><td>同上（华南数据视角）；有病假单待人事审批</td></tr>
+  <tr><td><b>finwu</b></td><td>admin123</td><td>吴敏（财务）</td><td>财务</td><td>回款一级审批、合同/回款管理</td></tr>
+  <tr><td><b>hrzhou</b></td><td>admin123</td><td>周蕙（人事主管）</td><td>人事</td><td>请假审批、用户管理、EAM 全量</td></tr>
+  <tr><td><b>li7</b></td><td>admin123</td><td>李七（研发经理）</td><td>只读</td><td>仅查看，写操作被 403 拦截（权限负例演示）</td></tr>
+  <tr><td><b>guest</b></td><td>admin123</td><td>顾客</td><td>只读</td><td>双开浏览器对比权限</td></tr>
+</table>
+<div class="warn">演示环境数据每日凌晨 3 点自动重置；公网环境，测试完成后请及时修改 admin 密码。</div>
+<h2>16.3 业务规则速查</h2>
+<ul>
+  <li>线索转化 = 自动建客户 + 联系人 + 迁移跟进</li>
+  <li>团队三级权限：负责人 / 可写 / 只读；商机合同回款随客户</li>
+  <li>公海：放入即清负责人+解散团队；成交/锁定不可入池；掉保30天/超期90天自动回收（可配）</li>
+  <li>合同：0草稿→1审批中→2通过/3驳回；仅通过可录回款；明细行合计联动</li>
+  <li>回款：审批通过才累计；累计 ≤ 合同总额</li>
+  <li>商机赢单 → 客户自动成交</li>
+  <li>审批：或签任一过、会签全过、条件按金额路由；驳回即终止并通知申请人</li>
+  <li>资产：闲置→领用/借出→在用→退回→闲置；报修→维修→修完→闲置；报废走审批</li>
+  <li>折旧：直线法 5% 残值，每月 1 日自动，提完即停</li>
+  <li>文件：单文件 ≤ 20MB；UUID 存储原名入库；越权下载被拒</li>
+</ul>
+<h2>16.4 安全建议</h2>
+<ul>
+  <li>上线后立即修改 admin 初始密码，并按最小权限原则分配角色</li>
+  <li>阿里云 AccessKey 只授予短信发送权限（AliyunDysmsFullFullAccess 最小化为发送动作）</li>
+  <li>定期在「操作日志」审计关键操作；MySQL 定期备份（含 crm_/oa_/eam_/sys_ 全部业务表）</li>
+</ul>
+<p style="margin-top:40px;text-align:center;color:#8a93a3">— 码域CRM 产品说明手册 · 完 —</p>
+
+</body>
+</html>
