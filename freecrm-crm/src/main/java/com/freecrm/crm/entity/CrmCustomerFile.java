@@ -20,6 +20,8 @@ import lombok.EqualsAndHashCode;
 @TableName("crm_customer_file")
 public class CrmCustomerFile extends BaseEntity {
     private Long customerId;
+    /** 1客户附件 2合同附件 */
+    private Integer bizKind;
     private String fileName;
     private String filePath;
     private Long fileSize;

@@ -33,6 +33,14 @@
       "style": { "navigationBarTitleText": "我的消息" }
     },
     {
+      "path": "pages/opportunity/index",
+      "style": { "navigationBarTitleText": "我的商机" }
+    },
+    {
+      "path": "pages/opportunity/detail",
+      "style": { "navigationBarTitleText": "商机详情" }
+    },
+    {
       "path": "pages/approval/detail",
       "style": { "navigationBarTitleText": "审批详情" }
     }

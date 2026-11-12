@@ -30,7 +30,9 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="keeperUserId" label="保管人ID" width="85" />
+      <el-table-column label="保管人" width="100">
+        <template #default="{ row }">{{ userMap[row.keeperUserId] || row.keeperUserId }}</template>
+      </el-table-column>
       <el-table-column prop="location" label="位置" width="110" />
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
@@ -79,6 +81,13 @@ import http from '../../../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const rows = ref([]); const total = ref(0); const pageNo = ref(1)
+const userMap = ref({})
+async function loadUsers() {
+  const list = await http.get('/api/user/simple-list')
+  const m = {}
+  ;(list || []).forEach(u => { m[u.id] = u.nickname })
+  userMap.value = m
+}
 const kw = ref(''); const statusF = ref(null); const catPath = ref([])
 const catTree = ref([]); const catFlat = ref([])
 const dlg = ref(false); const form = reactive({})
@@ -145,5 +154,5 @@ async function showChanges(row) {
     p.records.map(c => `[${c.changeTime}] ${names[c.type]}：${c.fromUserId || '-'} → ${c.toUserId || '-'} ${c.reason || ''}`).join('<br>') || '无记录',
     `变更历史 - ${row.assetNo}`, { dangerouslyUseHTMLString: true })
 }
-onMounted(() => { loadCats(); load() })
+onMounted(() => { loadUsers(); loadCats(); load() })
 </script>

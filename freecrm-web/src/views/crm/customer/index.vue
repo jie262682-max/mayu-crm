@@ -36,6 +36,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="nextContactTime" label="下次联系" width="160" />
+      <el-table-column label="负责人" width="100">
+        <template #default="{ row }">{{ userMap[row.ownerUserId] || row.ownerUserId }}</template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="160" />
       <el-table-column label="操作" width="240">
         <template #default="{ row }">
@@ -112,7 +115,10 @@
         <el-table-column label="成交" width="70">
           <template #default="{ row }">{{ row.dealStatus === 1 ? '已成交' : '未成交' }}</template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="160" />
+        <el-table-column label="负责人" width="100">
+        <template #default="{ row }">{{ userMap[row.ownerUserId] || row.ownerUserId }}</template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="160" />
         <el-table-column label="操作" width="200">
           <template #default="{ row }">
             <el-radio-group v-model="mergeMain" size="small">
@@ -291,6 +297,13 @@ async function doImport(e) {
 }
 
 const rows = ref([]); const total = ref(0); const pageNo = ref(1); const kw = ref('')
+const userMap = ref({})
+async function loadUsers() {
+  const list = await http.get('/api/user/simple-list')
+  const m = {}
+  ;(list || []).forEach(u => { m[u.id] = u.nickname })
+  userMap.value = m
+}
 const dlg = ref(false); const form = reactive({})
 const followDlg = ref(false); const follows = ref([]); const nfContent = ref('')
 const nfFiles = ref([]); const followFileEl = ref(); const followSaving = ref(false); const followFilesAll = ref([])
@@ -371,5 +384,5 @@ async function delContact(row) {
   await http.delete('/api/crm/contact/delete', { params: { id: row.id } })
   openContacts(curCustomer.value)
 }
-onMounted(load)
+onMounted(() => { loadUsers(); load() })
 </script>

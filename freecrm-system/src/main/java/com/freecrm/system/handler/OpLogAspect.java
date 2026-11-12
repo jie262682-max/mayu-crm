@@ -28,6 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class OpLogAspect {
 
+    /** 敏感字段脱敏：密码/密钥不得写入操作日志（" = 双引号） */
+    private static final java.util.regex.Pattern SENSITIVE =
+            java.util.regex.Pattern.compile("(\\u0022)(password|oldPassword|accessSecret|token|secret)(\\u0022\\\\s*:\\u0022)[^\\u0022]*(\\u0022)");
+
     private final SysOperLogMapper logMapper;
 
     public OpLogAspect(SysOperLogMapper logMapper) {
@@ -42,7 +46,9 @@ public class OpLogAspect {
         log.setAction(opLog.action());
         log.setMethod(pjp.getSignature().getDeclaringTypeName() + "." + pjp.getSignature().getName());
         try {
-            log.setParams(JSONUtil.toJsonStr(pjp.getArgs()).substring(0, Math.min(2000, JSONUtil.toJsonStr(pjp.getArgs()).length())));
+            String json = JSONUtil.toJsonStr(pjp.getArgs());
+            json = SENSITIVE.matcher(json).replaceAll("$1$2$3***$4");
+            log.setParams(json.substring(0, Math.min(2000, json.length())));
         } catch (Exception ignore) { }
         try {
             fillRequestInfo(log);

@@ -22,6 +22,9 @@
       <view class="kv" @click="goNotice">
         <text>我的消息</text><text class="muted">›</text>
       </view>
+      <view class="kv" @click="goOpp">
+        <text>我的商机</text><text class="muted">›</text>
+      </view>
     </view>
 
     <view class="card">
@@ -43,6 +46,9 @@ export default {
     },
     goNotice() {
       uni.navigateTo({ url: '/pages/notice/notice' })
+    },
+    goOpp() {
+      uni.navigateTo({ url: '/pages/opportunity/index' })
     },
     logout() {
       uni.request({

@@ -62,13 +62,19 @@ public class CustomerFileController {
     @SaCheckPermission("crm:customer:save")
     @OpLog(module = "客户资料", action = "上传资料")
     public R<Integer> upload(@RequestParam Long customerId,
+                             @RequestParam(value = "kind", defaultValue = "1") int kind,
                              @RequestParam(value = "followUpId", required = false) Long followUpId,
                              @RequestParam("files") MultipartFile[] files) throws IOException {
-        checkWrite(customerId);
+        if (kind == 2) {
+            checkContractWrite(customerId);
+        } else {
+            checkWrite(customerId);
+        }
         if (files == null || files.length == 0) {
             throw new BizException("请选择文件");
         }
-        File dir = new File(uploadDir, String.valueOf(customerId));
+        String sub = (kind == 2 ? "contract/" : "") + customerId;
+            File dir = new File(uploadDir, sub);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new BizException("创建存储目录失败：" + dir.getAbsolutePath());
         }
@@ -77,14 +83,16 @@ public class CustomerFileController {
                 continue;
             }
             String original = f.getOriginalFilename() == null ? "file" : f.getOriginalFilename();
+            checkFileAllowed(original);
             String stored = UUID.randomUUID().toString().replace("-", "") +
                     (original.lastIndexOf('.') >= 0 ? original.substring(original.lastIndexOf('.')) : "");
             File target = new File(dir, stored);
             f.transferTo(target);
             CrmCustomerFile row = new CrmCustomerFile();
             row.setCustomerId(customerId);
+                row.setBizKind(kind);
             row.setFileName(original);
-            row.setFilePath(customerId + "/" + stored);
+            row.setFilePath(sub + "/" + stored);
             row.setFileSize(f.getSize());
             row.setContentType(f.getContentType());
             row.setFollowUpId(followUpId);
@@ -95,9 +103,15 @@ public class CustomerFileController {
 
     @GetMapping("/list")
     @SaCheckPermission("crm:customer:list")
-    public R<List<CrmCustomerFile>> list(@RequestParam Long customerId) {
-        checkRead(customerId);
+    public R<List<CrmCustomerFile>> list(@RequestParam Long customerId,
+                                          @RequestParam(value = "kind", defaultValue = "1") int kind) {
+        if (kind == 2) {
+            checkContractRead(customerId);
+        } else {
+            checkRead(customerId);
+        }
         return R.ok(fileMapper.selectList(new LambdaQueryWrapper<CrmCustomerFile>()
+                .eq(CrmCustomerFile::getBizKind, kind)
                 .eq(CrmCustomerFile::getCustomerId, customerId)
                 .orderByDesc(CrmCustomerFile::getId)));
     }
@@ -110,7 +124,11 @@ public class CustomerFileController {
         if (f == null) {
             throw new BizException("文件不存在");
         }
-        checkRead(f.getCustomerId());
+        if (f.getBizKind() != null && f.getBizKind() == 2) {
+                checkContractRead(f.getCustomerId());
+            } else {
+                checkRead(f.getCustomerId());
+            }
         File target = new File(uploadDir, f.getFilePath());
         if (!target.exists()) {
             throw new BizException("文件已丢失：" + f.getFileName());
@@ -132,10 +150,23 @@ public class CustomerFileController {
         if (f == null) {
             throw new BizException("文件不存在");
         }
-        checkWrite(f.getCustomerId());
+        if (f.getBizKind() != null && f.getBizKind() == 2) {
+                checkContractWrite(f.getCustomerId());
+            } else {
+                checkWrite(f.getCustomerId());
+            }
         fileMapper.deleteById(id);
         new File(uploadDir, f.getFilePath()).delete();
         return R.ok();
+    }
+
+    /** 合同附件：要求客户团队只读（合同列表权限即 crm:contract:list 由 @SaCheckPermission 把关） */
+    private void checkContractRead(Long customerId) {
+        teamService.checkPermission(LeadServiceImpl.BIZ_CUSTOMER, customerId, TeamServiceImpl.READ);
+    }
+
+    private void checkContractWrite(Long customerId) {
+        teamService.checkPermission(LeadServiceImpl.BIZ_CUSTOMER, customerId, TeamServiceImpl.WRITE);
     }
 
     private void checkRead(Long customerId) {
@@ -145,4 +176,5 @@ public class CustomerFileController {
     private void checkWrite(Long customerId) {
         teamService.checkPermission(LeadServiceImpl.BIZ_CUSTOMER, customerId, TeamServiceImpl.WRITE);
     }
+/** 上传扩展名白名单：阻断可执行/脚本类文件（存储型XSS、恶意文件分发） */    private static final java.util.Set<String> ALLOWED_EXT = new java.util.HashSet<>(java.util.Arrays.asList(            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "md",            "jpg", "jpeg", "png", "gif", "bmp", "webp",            "zip", "rar", "7z",            "mp4", "mp3", "wav"));    private void checkFileAllowed(String filename) {        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {            throw new com.freecrm.common.exception.BizException("文件名非法：" + filename);        }        int dot = filename.lastIndexOf('.');        String ext = dot >= 0 ? filename.substring(dot + 1).toLowerCase() : "";        if (!ALLOWED_EXT.contains(ext)) {            throw new com.freecrm.common.exception.BizException("不允许的文件类型：." + ext + "（支持文档/图片/压缩包/音视频）");        }    }
 }

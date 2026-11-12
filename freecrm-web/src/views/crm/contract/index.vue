@@ -36,6 +36,7 @@
           <el-button v-if="row.auditStatus === 2" link type="success" @click="openPay(row)">回款</el-button>
           <el-button link @click="openPlans(row)">计划</el-button>
           <el-button link type="info" @click="openItems(row)">明细</el-button>
+          <el-button link @click="openHtFiles(row)">附件</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -108,6 +109,26 @@
       </template>
     </el-dialog>
 
+    <el-dialog v-model="htFileDlg" :title="`合同附件 - ${curContract?.contractNo || ''}`" width="680px">
+      <div style="margin-bottom:8px">
+        <input ref="htFileEl" type="file" multiple style="display:none" @change="onHtFiles" />
+        <el-button type="primary" plain @click="htFileEl?.click()">📎 上传附件（可多选，合同扫描件/盖章版）</el-button>
+      </div>
+      <el-table :data="htFiles" border size="small">
+        <el-table-column prop="fileName" label="文件名" min-width="200" />
+        <el-table-column label="大小" width="100">
+          <template #default="{ row }">{{ fmtSize(row.fileSize) }}</template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="上传时间" width="160" />
+        <el-table-column label="操作" width="130">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="dlHt(row)">下载</el-button>
+            <el-button link type="danger" @click="delHt(row)">删</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
     <el-dialog v-model="payDlg" :title="`录入回款 - ${curContract?.contractNo || ''}`" width="440px">
       <el-form :model="npay" label-width="80px">
         <el-form-item label="回款日期">
@@ -139,6 +160,39 @@ const planDlg = ref(false); const plans = ref([]); const np = reactive({ periodN
 const payDlg = ref(false); const npay = reactive({ returnTime: '', amount: 0, method: 1, remark: '' })
 const curContract = ref(null)
 const itemDlg = ref(false); const items = ref([]); const itemsEditable = ref(false)
+const htFileDlg = ref(false); const htFiles = ref([]); const htFileEl = ref()
+function fmtSize(n) {
+  if (!n) return '-'
+  return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1024).toFixed(0) + ' KB'
+}
+async function openHtFiles(row) {
+  curContract.value = row
+  htFiles.value = await http.get('/api/crm/customer/file/list', { params: { customerId: row.customerId, kind: 2 } })
+  htFileDlg.value = true
+}
+function onHtFiles(e) {
+  const list = Array.from(e.target.files || [])
+  if (!list.length) return
+  const fd = new FormData()
+  list.forEach(f => fd.append('files', f))
+  http.post('/api/crm/customer/file/upload?customerId=' + curContract.value.customerId + '&kind=2', fd,
+    { headers: { 'Content-Type': 'multipart/form-data' } }).then(() => {
+    ElMessage.success('上传成功'); e.target.value = ''
+    openHtFiles(curContract.value)
+  })
+}
+function dlHt(row) {
+  fetch('/api/crm/customer/file/download?id=' + row.id, { headers: { Authorization: localStorage.getItem('token') } })
+    .then(r => r.blob()).then(b => {
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(b); a.download = row.fileName; a.click()
+    })
+}
+async function delHt(row) {
+  await ElMessageBox.confirm(`删除附件「${row.fileName}」？`, '提示', { type: 'warning' })
+  await http.delete('/api/crm/customer/file/delete', { params: { id: row.id } })
+  openHtFiles(curContract.value)
+}
 const products = ref([]); const newItem = reactive({ productId: null, quantity: 1, price: 0 })
 
 async function openItems(row) {

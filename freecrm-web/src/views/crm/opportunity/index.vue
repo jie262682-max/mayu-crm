@@ -35,6 +35,7 @@
           </el-select>
           <el-button v-if="!row.endStatus" link type="success" @click="end(row, 1)">赢单</el-button>
           <el-button v-if="!row.endStatus" link type="danger" @click="end(row, 2)">输单</el-button>
+          <el-button link type="info" @click="openOppItems(row)">明细</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,10 +81,36 @@
         </el-table-column>
       </el-table>
     </el-dialog>
+    <el-dialog v-model="oppItemDlg" :title="`商机明细 - ${curOpp?.name || ''}`" width="760px">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <el-select v-model="newItem.productId" filterable placeholder="选择产品" style="width:260px">
+          <el-option v-for="p in products" :key="p.id" :label="p.name + '（￥' + p.price + '）'" :value="p.id" />
+        </el-select>
+        <el-input-number v-model="newItem.quantity" :min="0.01" :precision="2" style="width:120px" />
+        <el-input-number v-model="newItem.price" :min="0" style="width:130px" />
+        <el-button type="primary" size="small" @click="addOppItem">添加</el-button>
+      </div>
+      <el-table :data="oppItems" border size="small">
+        <el-table-column prop="productName" label="产品" min-width="170" />
+        <el-table-column prop="quantity" label="数量" width="90" />
+        <el-table-column prop="price" label="单价" width="100" />
+        <el-table-column prop="amount" label="小计" width="110" />
+        <el-table-column label="操作" width="60">
+          <template #default="{ $index }">
+            <el-button link type="danger" @click="oppItems.splice($index, 1)">删</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div style="margin-top:8px;text-align:right;font-weight:bold">合计：￥{{ oppTotal }}</div>
+      <template #footer>
+        <el-button @click="oppItemDlg = false">关闭</el-button>
+        <el-button v-if="curOpp && curOpp.endStatus === null" type="primary" @click="saveOppItems">保存明细</el-button>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import http from '../../../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -158,4 +185,32 @@ async function delGroup(row) {
   loadGroups()
 }
 onMounted(() => { loadGroups(); load() })
+const oppItemDlg = ref(false); const oppItems = ref([]); const curOpp = ref(null)
+const products = ref([]); const newItem = reactive({ productId: null, quantity: 1, price: 0 })
+const oppTotal = computed(() => oppItems.value.reduce((a, i) => a + Number(i.amount || 0), 0).toFixed(2))
+async function openOppItems(row) {
+  curOpp.value = row
+  if (!products.value.length) {
+    const p = await http.get('/api/crm/product/page', { params: { pageNo: 1, pageSize: 100 } })
+    products.value = p.records || []
+  }
+  const its = await http.get('/api/crm/opportunity/opp-item/list', { params: { opportunityId: row.id } })
+  oppItems.value = (its || []).map(it => {
+    const prod = products.value.find(p => p.id === it.productId)
+    return { ...it, productName: prod ? prod.name : '#' + it.productId }
+  })
+  oppItemDlg.value = true
+}
+function addOppItem() {
+  const prod = products.value.find(p => p.id === newItem.productId)
+  if (!prod) return
+  const price = newItem.price || prod.price
+  oppItems.value.push({ productId: prod.id, productName: prod.name, quantity: newItem.quantity, price, amount: +(newItem.quantity * price).toFixed(2) })
+  newItem.productId = null; newItem.quantity = 1; newItem.price = 0
+}
+async function saveOppItems() {
+  await http.post('/api/crm/opportunity/opp-item/save-batch?opportunityId=' + curOpp.value.id,
+    oppItems.value.map(({ productName, ...it }) => it))
+  ElMessage.success('明细已保存'); oppItemDlg.value = false
+}
 </script>

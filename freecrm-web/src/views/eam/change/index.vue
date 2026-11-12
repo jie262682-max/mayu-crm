@@ -17,11 +17,11 @@
           <el-tag size="small">{{ ['', '领用', '退回', '借出', '归还', '维修', '报废'][row.type] }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="从(人ID)" width="85">
-        <template #default="{ row }">{{ row.fromUserId || '-' }}</template>
+      <el-table-column label="从" width="100">
+        <template #default="{ row }">{{ row.fromUserId ? (userMap[row.fromUserId] || row.fromUserId) : '-' }}</template>
       </el-table-column>
-      <el-table-column label="到(人ID)" width="85">
-        <template #default="{ row }">{{ row.toUserId || '-' }}</template>
+      <el-table-column label="到" width="100">
+        <template #default="{ row }">{{ row.toUserId ? (userMap[row.toUserId] || row.toUserId) : '-' }}</template>
       </el-table-column>
       <el-table-column prop="reason" label="原因" min-width="160" />
       <el-table-column prop="changeTime" label="变更时间" width="170" />
@@ -35,6 +35,13 @@ import { onMounted, ref } from 'vue'
 import http from '../../../api/request'
 
 const rows = ref([]); const total = ref(0); const pageNo = ref(1); const typeF = ref(null)
+const userMap = ref({})
+async function loadUsers() {
+  const list = await http.get('/api/user/simple-list')
+  const m = {}
+  ;(list || []).forEach(u => { m[u.id] = u.nickname })
+  userMap.value = m
+}
 
 async function load() {
   const p = await http.get('/api/eam/asset/change/page', {
@@ -42,5 +49,5 @@ async function load() {
   })
   rows.value = p.records; total.value = Number(p.total)
 }
-onMounted(load)
+onMounted(() => { loadUsers(); load() })
 </script>

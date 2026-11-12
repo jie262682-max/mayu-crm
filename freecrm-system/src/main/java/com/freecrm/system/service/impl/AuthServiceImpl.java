@@ -42,6 +42,11 @@ public class AuthServiceImpl implements AuthService {
     private final MenuService menuService;
     private final com.freecrm.system.mapper.SysLoginLogMapper loginLogMapper;
 
+    /** 登录失败锁定：同一用户名 5 次失败锁 10 分钟（内存计数，单机部署；集群需换 Redis） */
+    private static final int MAX_FAIL = 5;
+    private static final long LOCK_MS = 10 * 60 * 1000L;
+    private final java.util.Map<String, long[]> loginFailCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     public AuthServiceImpl(SysUserMapper userMapper, SysRoleMapper roleMapper, SysMenuMapper menuMapper,
                            SysUserRoleMapper userRoleMapper, SysRoleMenuHolder roleMenuHolder, MenuService menuService,
                            com.freecrm.system.mapper.SysLoginLogMapper loginLogMapper) {
@@ -56,10 +61,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginRespVO login(LoginReqVO reqVO) {
+        long[] fail = loginFailCache.get(reqVO.getUsername());
+        if (fail != null && fail.length == 2 && System.currentTimeMillis() < fail[1]) {
+            long left = (fail[1] - System.currentTimeMillis()) / 1000;
+            throw new BizException(429, "失败次数过多，请 " + (left / 60 + 1) + " 分钟后再试");
+        }
         SysUser user = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getUsername, reqVO.getUsername()));
         if (user == null || !BCrypt.checkpw(reqVO.getPassword(), user.getPassword())) {
-            loginLog(reqVO.getUsername(), null, false, "用户名或密码错误");
+            loginLog(reqVO.getUsername(), user == null ? null : user.getId(), false, "用户名或密码错误");
+            recordLoginFail(reqVO.getUsername());
             throw new BizException(400, "用户名或密码错误");
         }
         if (user.getStatus() != null && user.getStatus() == 0) {
@@ -69,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
         StpUtil.login(user.getId());
         StpUtil.getSession().set("username", user.getUsername());
         loginLog(user.getUsername(), user.getId(), true, null);
+        loginFailCache.remove(user.getUsername());
 
         LoginRespVO resp = new LoginRespVO();
         resp.setToken(StpUtil.getTokenValue());
@@ -77,6 +89,17 @@ public class AuthServiceImpl implements AuthService {
         resp.setPermissions(getPermissions(user.getId()));
         resp.setMenus(menuService.getUserMenuTree(user.getId()));
         return resp;
+    }
+
+    private void recordLoginFail(String username) {
+        long[] f = loginFailCache.computeIfAbsent(username, k -> new long[]{0, 0});
+        synchronized (f) {
+            f[0]++;
+            if (f[0] >= MAX_FAIL) {
+                f[1] = System.currentTimeMillis() + LOCK_MS;
+                f[0] = 0;
+            }
+        }
     }
 
     private void loginLog(String username, Long userId, boolean success, String error) {

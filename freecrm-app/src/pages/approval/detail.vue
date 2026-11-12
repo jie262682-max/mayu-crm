@@ -31,6 +31,9 @@
         <view class="kv"><text class="k">方式</text><text>{{ ['-', '现金', '转账', '支票'][biz.method] || '-' }}</text></view>
         <view class="kv"><text class="k">备注</text><text>{{ biz.remark || '-' }}</text></view>
       </template>
+      <template v-else-if="bizType === 100 && biz">
+        <view class="kv" v-for="f in applyFields" :key="f.key"><text class="k">{{ f.label }}</text><text>{{ applyData[f.key] }}</text></view>
+      </template>
       <template v-else-if="bizType === 3 && biz">
         <view class="kv"><text class="k">类型</text><text>{{ ['事假', '病假', '年假', '调休'][biz.type - 1] }}</text></view>
         <view class="kv"><text class="k">时长</text><text>{{ biz.days }} 天</text></view>
@@ -69,6 +72,7 @@
 import http from '../../api/request'
 
 const BIZ_API = {
+  100: { url: '/api/oa/form/apply/get' },
   1: { url: '/api/crm/contract/get' },
   2: { url: '/api/crm/contract/payment/get' },
   3: { url: '/api/oa/leave/get' }

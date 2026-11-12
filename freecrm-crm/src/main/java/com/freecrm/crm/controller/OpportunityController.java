@@ -26,9 +26,18 @@ import java.util.Map;
 public class OpportunityController {
 
     private final OpportunityServiceImpl oppService;
+    private final com.freecrm.crm.mapper.CrmOppItemMapper oppItemMapper;
+    private final com.freecrm.crm.mapper.CrmOpportunityMapper oppMapper;
+    private final com.freecrm.crm.service.TeamService teamService;
 
-    public OpportunityController(OpportunityServiceImpl oppService) {
+    public OpportunityController(OpportunityServiceImpl oppService,
+                                com.freecrm.crm.mapper.CrmOppItemMapper oppItemMapper,
+                                com.freecrm.crm.mapper.CrmOpportunityMapper oppMapper,
+                                com.freecrm.crm.service.TeamService teamService) {
         this.oppService = oppService;
+        this.oppItemMapper = oppItemMapper;
+        this.oppMapper = oppMapper;
+        this.teamService = teamService;
     }
 
     @GetMapping("/page")
@@ -110,5 +119,38 @@ public class OpportunityController {
     public R<Void> deleteGroup(@RequestParam Long id) {
         oppService.deleteGroup(id);
         return R.ok();
+    }
+
+    // ---------- 商机产品明细 ----------
+
+    @PostMapping("/opp-item/save-batch")
+    @SaCheckPermission("crm:opportunity:save")
+    @com.freecrm.common.log.OpLog(module = "商机管理", action = "保存产品明细")
+    public R<Void> saveOppItems(@RequestParam Long opportunityId,
+                                @RequestBody java.util.List<com.freecrm.crm.entity.CrmOppItem> items) {
+        com.freecrm.crm.entity.CrmOpportunity opp = oppMapper.selectById(opportunityId);
+        if (opp == null) {
+            throw new com.freecrm.common.exception.BizException("商机不存在");
+        }
+        teamService.checkPermission(com.freecrm.crm.service.impl.LeadServiceImpl.BIZ_CUSTOMER,
+                opp.getCustomerId(), com.freecrm.crm.service.impl.TeamServiceImpl.WRITE);
+        oppItemMapper.physicalDeleteByOpp(opportunityId);
+        if (items != null) {
+            for (com.freecrm.crm.entity.CrmOppItem it : items) {
+                it.setId(null);
+                it.setOpportunityId(opportunityId);
+                oppItemMapper.insert(it);
+            }
+        }
+        return R.ok();
+    }
+
+    @GetMapping("/opp-item/list")
+    @SaCheckPermission("crm:opportunity:list")
+    public R<java.util.List<com.freecrm.crm.entity.CrmOppItem>> listOppItems(@RequestParam Long opportunityId) {
+        return R.ok(oppItemMapper.selectList(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.freecrm.crm.entity.CrmOppItem>()
+                        .eq(com.freecrm.crm.entity.CrmOppItem::getOpportunityId, opportunityId)
+                        .orderByAsc(com.freecrm.crm.entity.CrmOppItem::getId)));
     }
 }
