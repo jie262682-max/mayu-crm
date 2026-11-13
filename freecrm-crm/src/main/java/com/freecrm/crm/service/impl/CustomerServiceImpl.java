@@ -106,10 +106,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void transfer(Long id, Long newOwnerUserId) {
         checkOwner(id);
-        CrmCustomer upd = new CrmCustomer();
-        upd.setId(id);
-        upd.setOwnerUserId(newOwnerUserId);
-        customerMapper.updateById(upd);
+        // 转移视为新负责人接管，重置领取保护期
+        customerMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<CrmCustomer>()
+                .eq(CrmCustomer::getId, id)
+                .set(CrmCustomer::getOwnerUserId, newOwnerUserId)
+                .set(CrmCustomer::getOwnerTime, java.time.LocalDateTime.now()));
         teamService.addOwner(LeadServiceImpl.BIZ_CUSTOMER, id, newOwnerUserId);
     }
 
@@ -127,7 +128,8 @@ public class CustomerServiceImpl implements CustomerService {
         // 显式置空负责人（updateById 会忽略 null 字段）
         customerMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<CrmCustomer>()
                 .eq(CrmCustomer::getId, id)
-                .set(CrmCustomer::getOwnerUserId, null));
+                .set(CrmCustomer::getOwnerUserId, null)
+                .set(CrmCustomer::getOwnerTime, null));
         // 负责人清空，团队解散
         teamService.deleteByBiz(LeadServiceImpl.BIZ_CUSTOMER, id);
     }
@@ -142,10 +144,11 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BizException("客户已有负责人：" + c.getName());
         }
         long userId = StpUtil.getLoginIdAsLong();
-        CrmCustomer upd = new CrmCustomer();
-        upd.setId(id);
-        upd.setOwnerUserId(userId);
-        customerMapper.updateById(upd);
+        // updateById 忽略 null 字段，领取时间需一起写入（公海领取保护期依据）
+        customerMapper.update(null, new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<CrmCustomer>()
+                .eq(CrmCustomer::getId, id)
+                .set(CrmCustomer::getOwnerUserId, userId)
+                .set(CrmCustomer::getOwnerTime, java.time.LocalDateTime.now()));
         teamService.addOwner(LeadServiceImpl.BIZ_CUSTOMER, id, userId);
     }
 

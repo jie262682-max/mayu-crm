@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '../store/user'
-import { installDynamicRoutes, routesInstalled } from '../layout/dynamic'
+import { installDynamicRoutes, routesInstalled, firstPermittedPath } from '../layout/dynamic'
 
 // 动态组件映射：后端 component 字符串 -> 页面文件
 const views = import.meta.glob('../views/**/*.vue')
@@ -17,7 +17,7 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('../layout/index.vue'),
-      redirect: '/system/user',
+      redirect: () => firstPermittedPath(JSON.parse(localStorage.getItem('menus') || '[]')),
       children: []
     }
   ]

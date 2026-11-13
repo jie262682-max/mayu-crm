@@ -30,6 +30,8 @@ public class CrmContract extends BaseEntity {
     private Long opportunityId;
     /** 下单日期 */
     private LocalDate orderDate;
+    /** 到期日期 */
+    private LocalDate endDate;
     private BigDecimal totalAmount;
     private BigDecimal receivedAmount;
     /** 0草稿1审批中2通过3驳回 */

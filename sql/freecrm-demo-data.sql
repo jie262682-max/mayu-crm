@@ -38,7 +38,7 @@ SELECT 1, 0, '总部', NULL, 0, 1, NOW(), NOW(), 1, 0 FROM DUAL WHERE NOT EXISTS
 INSERT INTO sys_role (id, name, code, sort, status, remark, create_time, update_time, creator, deleted)
 SELECT 1, '超级管理员', 'super_admin', 0, 1, '全部权限', NOW(), NOW(), 1, 0 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_role WHERE id = 1);
 INSERT INTO sys_user (id, username, password, nickname, mobile, email, dept_id, status, create_time, update_time, creator, deleted)
-SELECT 1, 'admin', @PWD, '管理员', '13800000000', 'admin@example.com', 1, 1, NOW(), NOW(), 1, 0 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_user WHERE id = 1);
+SELECT 1, 'admin', @PWD, '管理员', '13800000000', 'admin@maoyu.cn', 1, 1, NOW(), NOW(), 1, 0 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_user WHERE id = 1);
 INSERT INTO sys_user_role (user_id, role_id) SELECT 1, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_user_role WHERE user_id = 1 AND role_id = 1);
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 1, m.id FROM sys_menu m WHERE m.deleted = 0 AND m.type <= 2
@@ -55,13 +55,13 @@ INSERT INTO sys_dept (id, parent_id, name, leader_user_id, sort, status, create_
 
 -- ---------- 2. 用户（密码同 admin123） ----------
 INSERT INTO sys_user (id, username, password, nickname, mobile, email, dept_id, status, create_time, update_time, creator, deleted) VALUES
-(2, 'zhang3',  @PWD, '张三（销售总监）', '13800000002', 'zhang3@example.com',  2, 1, NOW(), NOW(), 1, 0),
-(4, 'wang5',   @PWD, '王五（华东销售）', '13800000004', 'wang5@example.com',   3, 1, NOW(), NOW(), 1, 0),
-(5, 'zhao6',   @PWD, '赵六（华南销售）', '13800000005', 'zhao6@example.com',   4, 1, NOW(), NOW(), 1, 0),
-(6, 'li7',     @PWD, '李七（研发经理）', '13800000006', 'li7@example.com',     5, 1, NOW(), NOW(), 1, 0),
-(7, 'hrzhou',  @PWD, '周蕙（人事主管）', '13800000007', 'hrzhou@example.com',  6, 1, NOW(), NOW(), 1, 0),
-(8, 'finwu',   @PWD, '吴敏（财务）',     '13800000008', 'finwu@example.com',   7, 1, NOW(), NOW(), 1, 0),
-(9, 'guest',   @PWD, '顾客（只读演示）', '13800000009', 'guest@example.com',   1, 1, NOW(), NOW(), 1, 0);
+(2, 'zhang3',  @PWD, '张三（销售总监）', '13800000002', 'zhang3@freecrm.cn',  2, 1, NOW(), NOW(), 1, 0),
+(4, 'wang5',   @PWD, '王五（华东销售）', '13800000004', 'wang5@freecrm.cn',   3, 1, NOW(), NOW(), 1, 0),
+(5, 'zhao6',   @PWD, '赵六（华南销售）', '13800000005', 'zhao6@freecrm.cn',   4, 1, NOW(), NOW(), 1, 0),
+(6, 'li7',     @PWD, '李七（研发经理）', '13800000006', 'li7@freecrm.cn',     5, 1, NOW(), NOW(), 1, 0),
+(7, 'hrzhou',  @PWD, '周蕙（人事主管）', '13800000007', 'hrzhou@freecrm.cn',  6, 1, NOW(), NOW(), 1, 0),
+(8, 'finwu',   @PWD, '吴敏（财务）',     '13800000008', 'finwu@freecrm.cn',   7, 1, NOW(), NOW(), 1, 0),
+(9, 'guest',   @PWD, '顾客（只读演示）', '13800000009', 'guest@freecrm.cn',   1, 1, NOW(), NOW(), 1, 0);
 
 -- ---------- 3. 角色 ----------
 INSERT INTO sys_role (id, name, code, sort, status, remark, create_time, update_time, creator, deleted) VALUES
@@ -96,29 +96,35 @@ INSERT INTO sys_menu (id, parent_id, name, type, path, component, permission, ic
 (120, 84, '菜单新增/编辑', 3, '', NULL, 'sys:menu:save',      NULL, 1, 0, NOW(), NOW(), 1, 0),
 (121, 84, '菜单删除',      3, '', NULL, 'sys:menu:delete',    NULL, 2, 0, NOW(), NOW(), 1, 0),
 (122, 85, '部门新增/编辑', 3, '', NULL, 'sys:dept:save',      NULL, 1, 0, NOW(), NOW(), 1, 0),
-(123, 85, '部门删除',      3, '', NULL, 'sys:dept:delete',    NULL, 2, 0, NOW(), NOW(), 1, 0);
+(123, 85, '部门删除',      3, '', NULL, 'sys:dept:delete',    NULL, 2, 0, NOW(), NOW(), 1, 0)
+ON DUPLICATE KEY UPDATE deleted = 0;
 
 -- ---------- 5. 角色-菜单授权 ----------
 -- 销售经理：CRM 全部 + OA 全部 + 全部 CRM 写权限
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 2, m.id FROM sys_menu m
-WHERE m.id IN (80,81,86,87,88,89,90,91,92,93,94,95,96,97,98,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115) AND m.deleted = 0;
+WHERE m.id IN (80,81,86,87,88,89,90,91,92,93,94,95,96,97,98,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115) AND m.deleted = 0
+  AND NOT EXISTS (SELECT 1 FROM sys_role_menu rm WHERE rm.role_id = 2 AND rm.menu_id = m.id);
 -- 销售员：CRM 全部页面 + 基础写权限（无删除/无审核）
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 3, m.id FROM sys_menu m
-WHERE m.id IN (80,86,87,88,89,90,91,92,93,94,100,101,103,104,106,108,110,113) AND m.deleted = 0;
+WHERE m.id IN (80,86,87,88,89,90,91,92,93,94,100,101,103,104,106,108,110,113) AND m.deleted = 0
+  AND NOT EXISTS (SELECT 1 FROM sys_role_menu rm WHERE rm.role_id = 3 AND rm.menu_id = m.id);
 -- 财务：客户/合同/回款查看 + 合同审核 + 回款录入 + OA 待办
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 4, m.id FROM sys_menu m
-WHERE m.id IN (80,87,91,92,81,95,96,110,111,113) AND m.deleted = 0;
+WHERE m.id IN (80,87,91,92,81,95,96,110,111,113) AND m.deleted = 0
+  AND NOT EXISTS (SELECT 1 FROM sys_role_menu rm WHERE rm.role_id = 4 AND rm.menu_id = m.id);
 -- 人事：系统-用户管理 + OA 全部 + 用户编辑
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 5, m.id FROM sys_menu m
-WHERE m.id IN (79,82,81,95,96,97,98,116) AND m.deleted = 0;
+WHERE m.id IN (79,82,81,95,96,97,98,116) AND m.deleted = 0
+  AND NOT EXISTS (SELECT 1 FROM sys_role_menu rm WHERE rm.role_id = 5 AND rm.menu_id = m.id);
 -- 只读演示：CRM 全部列表 + OA 待办/申请
 INSERT INTO sys_role_menu (role_id, menu_id)
 SELECT 6, m.id FROM sys_menu m
-WHERE m.id IN (80,86,87,88,89,90,91,92,93,94,81,95,96) AND m.deleted = 0;
+WHERE m.id IN (80,86,87,88,89,90,91,92,93,94,81,95,96) AND m.deleted = 0
+  AND NOT EXISTS (SELECT 1 FROM sys_role_menu rm WHERE rm.role_id = 6 AND rm.menu_id = m.id);
 
 -- ---------- 6. 用户-角色 ----------
 INSERT INTO sys_user_role (user_id, role_id) VALUES
@@ -273,13 +279,13 @@ INSERT INTO crm_opportunity (id, name, customer_id, stage_group_id, stage_id, am
 (8, '锐创 POS+CRM 套件',     11,1, 4, 32000.00, '2026-10-25', 2,    5, '竞品低价抢单，输单',     '2026-10-17 10:00:00', NOW(), 5, 0);
 
 -- ---------- 16. 合同 ----------
-INSERT INTO crm_contract (id, contract_no, name, customer_id, opportunity_id, order_date, total_amount, received_amount, audit_status, owner_user_id, remark, create_time, update_time, creator, deleted) VALUES
-(1, 'HT20261020-88001',  '云启科技 FreeCRM 标准版年订阅',     1, 1,    '2026-10-20', 8800.00,   8800.00,  2, 4, '含实施 1 人天',      '2026-10-20 11:00:00', NOW(), 4, 0),
-(2, 'HT20261028-39801',  '蓝鲸智能 ERP 整体方案',            3, 3,    '2026-10-28', 39800.00,  20000.00, 2, 5, '三期付款',           '2026-10-28 10:00:00', NOW(), 5, 0),
-(3, 'HT20261105-12001',  '明州医院 CRM 二期建设',            7, 7,    '2026-11-05', 120000.00, 0.00,     1, 1, '审批中（张三待审）', '2026-11-05 10:00:00', NOW(), 1, 0),
-(4, 'HT20261101-88002',  '恒泰机械轻量版试点',               6, 6,    '2026-11-01', 8800.00,   0.00,     0, 2, '草稿，待提交',       '2026-11-04 14:00:00', NOW(), 2, 0),
-(5, 'HT20261015-32001',  '锐创电子 POS 收银套件',            11,8,    '2026-10-15', 32000.00,  0.00,     3, 5, '审批驳回：预算不足', '2026-10-15 10:00:00', NOW(), 5, 0),
-(6, 'HT20261108-60001',  '优选百货营销短信包',               4, NULL, '2026-11-08', 6000.00,   0.00,     0, 4, '草稿，等客户预算',   '2026-11-08 10:00:00', NOW(), 4, 0);
+INSERT INTO crm_contract (id, contract_no, name, customer_id, opportunity_id, order_date, end_date, total_amount, received_amount, audit_status, owner_user_id, remark, create_time, update_time, creator, deleted) VALUES
+(1, 'HT20261020-88001',  '云启科技 FreeCRM 标准版年订阅',     1, 1,    '2026-10-20', DATE_ADD(CURDATE(), INTERVAL 15 DAY), 8800.00,   8800.00,  2, 4, '含实施 1 人天',      '2026-10-20 11:00:00', NOW(), 4, 0),
+(2, 'HT20261028-39801',  '蓝鲸智能 ERP 整体方案',            3, 3,    '2026-10-28', DATE_SUB(CURDATE(), INTERVAL 5 DAY),  39800.00,  20000.00, 2, 5, '三期付款，已逾期未收完', '2026-10-28 10:00:00', NOW(), 5, 0),
+(3, 'HT20261105-12001',  '明州医院 CRM 二期建设',            7, 7,    '2026-11-05', NULL, 120000.00, 0.00,     1, 1, '审批中（张三待审）', '2026-11-05 10:00:00', NOW(), 1, 0),
+(4, 'HT20261101-88002',  '恒泰机械轻量版试点',               6, 6,    '2026-11-01', NULL, 8800.00,   0.00,     0, 2, '草稿，待提交',       '2026-11-04 14:00:00', NOW(), 2, 0),
+(5, 'HT20261015-32001',  '锐创电子 POS 收银套件',            11,8,    '2026-10-15', NULL, 32000.00,  0.00,     3, 5, '审批驳回：预算不足', '2026-10-15 10:00:00', NOW(), 5, 0),
+(6, 'HT20261108-60001',  '优选百货营销短信包',               4, NULL, '2026-11-08', NULL, 6000.00,   0.00,     0, 4, '草稿，等客户预算',   '2026-11-08 10:00:00', NOW(), 4, 0);
 
 -- ---------- 17. 回款计划 ----------
 INSERT INTO crm_payment_plan (id, contract_id, period_no, return_time, amount, remark, create_time, update_time, creator, deleted) VALUES

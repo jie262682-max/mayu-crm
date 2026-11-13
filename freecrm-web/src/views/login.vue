@@ -28,7 +28,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '../api/auth'
 import { useUserStore } from '../store/user'
-import { installDynamicRoutes } from '../layout/dynamic'
+import { installDynamicRoutes, firstPermittedPath } from '../layout/dynamic'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,7 +41,7 @@ async function doLogin() {
     const data = await login(form)
     userStore.setLogin(data)
     installDynamicRoutes(data.menus || [])
-    router.push('/')
+    router.push(firstPermittedPath(data.menus || []))
     ElMessage.success('欢迎，' + data.nickname)
   } finally {
     loading.value = false

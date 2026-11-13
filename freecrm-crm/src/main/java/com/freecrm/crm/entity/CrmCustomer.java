@@ -35,6 +35,8 @@ public class CrmCustomer extends BaseEntity {
     private Integer level;
     /** 负责人，NULL=公海 */
     private Long ownerUserId;
+    /** 领取/转移时间（公海领取保护期依据） */
+    private LocalDateTime ownerTime;
     /** 0正常1锁定 */
     private Integer lockStatus;
     /** 0未成交1已成交 */

@@ -19,4 +19,9 @@ CREATE TABLE IF NOT EXISTS `crm_customer_file` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户资料附件';
 
 -- 跟进附件关联（可空：客户资料区上传的为 NULL，跟进时上传的指向跟进记录）
-ALTER TABLE `crm_customer_file` ADD COLUMN `follow_up_id` bigint DEFAULT NULL COMMENT '关联跟进记录' AFTER `remark`;
+-- MySQL 5.7 无 ADD COLUMN IF NOT EXISTS，用 information_schema 守卫保证可重复导入
+SET @s = IF((SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'crm_customer_file' AND COLUMN_NAME = 'follow_up_id') = 0,
+  'ALTER TABLE `crm_customer_file` ADD COLUMN `follow_up_id` bigint DEFAULT NULL COMMENT ''关联跟进记录'' AFTER `remark`',
+  'SELECT 1');
+PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;

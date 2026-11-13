@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.freecrm.common.result.R;
 import com.freecrm.crm.entity.CrmCustomer;
 import com.freecrm.crm.service.CustomerService;
+import com.freecrm.crm.service.PoolRecycleService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +24,11 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final PoolRecycleService poolRecycleService;
 
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerService customerService, PoolRecycleService poolRecycleService) {
         this.customerService = customerService;
+        this.poolRecycleService = poolRecycleService;
     }
 
     @GetMapping("/page")
@@ -96,5 +99,20 @@ public class CustomerController {
     @com.freecrm.common.log.OpLog(module = "客户管理", action = "合并客户")
     public R<java.util.Map<String, Object>> merge(@RequestParam Long mainId, @RequestParam Long dupId) {
         return R.ok(customerService.merge(mainId, dupId));
+    }
+
+    /** 公海回收预览：按当前规则列出将被回收的客户（不执行） */
+    @GetMapping("/pool/recycle-preview")
+    @SaCheckPermission("sys:user:list")
+    public R<List<java.util.Map<String, Object>>> recyclePreview() {
+        return R.ok(poolRecycleService.preview());
+    }
+
+    /** 公海手动回收：立即执行一轮（受总开关控制） */
+    @PostMapping("/pool/recycle-now")
+    @SaCheckPermission("sys:user:list")
+    @com.freecrm.common.log.OpLog(module = "系统设置", action = "手动执行公海回收")
+    public R<java.util.Map<String, Integer>> recycleNow() {
+        return R.ok(poolRecycleService.recycleNow());
     }
 }

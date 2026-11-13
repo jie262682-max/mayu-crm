@@ -18,6 +18,16 @@
       <el-table-column prop="name" label="合同名" min-width="130" />
       <el-table-column prop="customerId" label="客户ID" width="85" />
       <el-table-column prop="orderDate" label="下单日期" width="105" />
+      <el-table-column label="到期日期" width="130">
+        <template #default="{ row }">
+          <template v-if="row.endDate">
+            <span>{{ row.endDate }}</span>
+            <el-tag v-if="daysLeft(row) < 0" type="danger" size="small" style="margin-left:4px">逾期{{ -daysLeft(row) }}天</el-tag>
+            <el-tag v-else-if="daysLeft(row) <= 30" type="warning" size="small" style="margin-left:4px">剩{{ daysLeft(row) }}天</el-tag>
+          </template>
+          <span v-else class="muted">-</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="totalAmount" label="总额" width="100" />
       <el-table-column prop="receivedAmount" label="已回款" width="100" />
       <el-table-column label="审核" width="90">
@@ -50,6 +60,10 @@
         <el-form-item label="商机ID"><el-input-number v-model="form.opportunityId" :min="1" style="width:100%" /></el-form-item>
         <el-form-item label="下单日期">
           <el-date-picker v-model="form.orderDate" type="date" value-format="YYYY-MM-DD" style="width:100%" />
+        </el-form-item>
+        <el-form-item label="到期日期">
+          <el-date-picker v-model="form.endDate" type="date" value-format="YYYY-MM-DD"
+                          placeholder="选填，用于到期提醒" style="width:100%" />
         </el-form-item>
         <el-form-item label="总金额"><el-input-number v-model="form.totalAmount" :min="0" style="width:100%" /></el-form-item>
         <el-form-item label="备注"><el-input v-model="form.remark" type="textarea" :rows="2" /></el-form-item>
@@ -164,6 +178,9 @@ const htFileDlg = ref(false); const htFiles = ref([]); const htFileEl = ref()
 function fmtSize(n) {
   if (!n) return '-'
   return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1024).toFixed(0) + ' KB'
+}
+function daysLeft(row) {
+  return Math.ceil((new Date(row.endDate) - new Date(new Date().toDateString())) / 86400000)
 }
 async function openHtFiles(row) {
   curContract.value = row
