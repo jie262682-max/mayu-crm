@@ -91,7 +91,7 @@ public class StatsController {
                         && c.getAuditStatus() != null && c.getAuditStatus() == 2)
                 .map(c -> c.getTotalAmount() == null ? BigDecimal.ZERO : c.getTotalAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-        m.put("monthReceived", paymentMapper.selectList(
+        m.put("monthReceived", cts.isEmpty() ? BigDecimal.ZERO : paymentMapper.selectList(
                         new LambdaQueryWrapper<CrmPayment>().in(CrmPayment::getContractId,
                                         cts.stream().map(CrmContract::getId).collect(Collectors.toList()))
                                 .eq(CrmPayment::getAuditStatus, 1)

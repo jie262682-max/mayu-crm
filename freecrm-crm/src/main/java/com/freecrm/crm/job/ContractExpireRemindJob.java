@@ -56,6 +56,9 @@ public class ContractExpireRemindJob {
         int expiring = 0;
         int overdue = 0;
         for (CrmContract c : list) {
+            if (c.getOwnerUserId() == null) {
+                continue; // 无负责人的合同无从提醒
+            }
             long daysLeft = ChronoUnit.DAYS.between(today, c.getEndDate());
             boolean notFullyPaid = c.getReceivedAmount() == null
                     || c.getTotalAmount() == null

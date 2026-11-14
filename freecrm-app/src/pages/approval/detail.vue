@@ -23,6 +23,7 @@
         <view class="kv"><text class="k">合同金额</text><text class="money">￥{{ biz.totalAmount }}</text></view>
         <view class="kv"><text class="k">已回款</text><text>￥{{ biz.receivedAmount || 0 }}</text></view>
         <view class="kv"><text class="k">下单日期</text><text>{{ biz.orderDate || '-' }}</text></view>
+        <view class="kv"><text class="k">到期日期</text><text>{{ biz.endDate || '-' }}</text></view>
       </template>
       <template v-else-if="bizType === 2 && biz">
         <view class="kv"><text class="k">关联合同</text><text>{{ contract ? contract.contractNo : biz.contractId }}</text></view>

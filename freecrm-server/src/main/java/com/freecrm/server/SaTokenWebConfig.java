@@ -10,19 +10,21 @@
 package com.freecrm.server;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Sa-Token 注解鉴权拦截器；登录接口放行
+ * Sa-Token 鉴权拦截器：全局强制登录 + 注解鉴权；登录接口放行
+ *（此前仅注解模式，无注解且不调 StpUtil 的接口会匿名裸奔——stats/sales-rank、合同收款计划、产品价格、请假详情等曾被未授权访问）
  */
 @Configuration
 public class SaTokenWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SaInterceptor())
+        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/auth/login");
     }
