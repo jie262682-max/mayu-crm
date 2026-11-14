@@ -66,6 +66,9 @@ public class ContractExpireRemindJob {
             try {
                 if (daysLeft < 0) {
                     if (notFullyPaid) {
+                        if (noticeService.sentRecently(c.getOwnerUserId(), "合同已逾期", 1, c.getId(), 7)) {
+                            continue; // 7 天内已提醒过，避免每天重复打扰
+                        }
                         noticeService.send(c.getOwnerUserId(), "合同已逾期",
                                 "合同「" + c.getName() + "」（" + c.getContractNo() + "）已逾期 "
                                         + Math.abs(daysLeft) + " 天且回款未收完（已收 "
@@ -75,6 +78,9 @@ public class ContractExpireRemindJob {
                     }
                 } else if (notFullyPaid || daysLeft <= 7) {
                     // 未收完款或最后一周，任何情形都值得提醒；收完款且还早则不打扰
+                    if (noticeService.sentRecently(c.getOwnerUserId(), "合同即将到期", 1, c.getId(), 7)) {
+                        continue; // 7 天内已提醒过
+                    }
                     noticeService.send(c.getOwnerUserId(), "合同即将到期",
                             "合同「" + c.getName() + "」（" + c.getContractNo() + "）将于 "
                                     + c.getEndDate() + " 到期（剩 " + daysLeft + " 天），已收 "

@@ -24,4 +24,7 @@ public interface PoolRecycleService {
 
     /** 立即执行一轮回收，返回 {noContact: n, expire: n} */
     Map<String, Integer> recycleNow();
+
+    /** 同上；manual=true 为管理页手动触发（并发互斥 + 日志区分触发来源） */
+    Map<String, Integer> recycleNow(boolean manual);
 }

@@ -59,23 +59,23 @@ public class StatsController {
     /** 顶部卡片：客户数/商机金额/合同额/回款额 + 本月三指标 + 临期/逾期合同数 */
     @GetMapping("/summary")
     public R<Map<String, Object>> summary() {
-        List<Long> custIds = visibleCustomerIds();
+        List<Long> custIds = visibleCustomerIds(); // null = 超管不限量，避免全表 id 拉回再 IN
         Map<String, Object> m = new HashMap<>();
-        if (custIds.isEmpty()) {
+        if (custIds != null && custIds.isEmpty()) {
             m.put("customers", 0); m.put("oppAmount", 0); m.put("contractAmount", 0); m.put("received", 0);
             m.put("monthNewCustomers", 0); m.put("monthContractAmount", 0); m.put("monthReceived", 0);
             m.put("expiringContracts", 0); m.put("overdueContracts", 0);
             return R.ok(m);
         }
         m.put("customers", customerMapper.selectCount(
-                new LambdaQueryWrapper<CrmCustomer>().in(CrmCustomer::getId, custIds)));
+                new LambdaQueryWrapper<CrmCustomer>().in(custIds != null, CrmCustomer::getId, custIds)));
         List<CrmOpportunity> opps = oppMapper.selectList(
-                new LambdaQueryWrapper<CrmOpportunity>().in(CrmOpportunity::getCustomerId, custIds)
+                new LambdaQueryWrapper<CrmOpportunity>().in(custIds != null, CrmOpportunity::getCustomerId, custIds)
                         .isNull(CrmOpportunity::getEndStatus));
         m.put("oppAmount", opps.stream().map(o -> o.getAmount() == null ? BigDecimal.ZERO : o.getAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
         List<CrmContract> cts = contractMapper.selectList(
-                new LambdaQueryWrapper<CrmContract>().in(CrmContract::getCustomerId, custIds));
+                new LambdaQueryWrapper<CrmContract>().in(custIds != null, CrmContract::getCustomerId, custIds));
         m.put("contractAmount", cts.stream().map(c -> c.getTotalAmount() == null ? BigDecimal.ZERO : c.getTotalAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
         m.put("received", cts.stream().map(c -> c.getReceivedAmount() == null ? BigDecimal.ZERO : c.getReceivedAmount())
@@ -84,20 +84,24 @@ public class StatsController {
         // 本月指标
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         m.put("monthNewCustomers", customerMapper.selectCount(
-                new LambdaQueryWrapper<CrmCustomer>().in(CrmCustomer::getId, custIds)
+                new LambdaQueryWrapper<CrmCustomer>().in(custIds != null, CrmCustomer::getId, custIds)
                         .ge(CrmCustomer::getCreateTime, monthStart)));
         m.put("monthContractAmount", cts.stream()
                 .filter(c -> c.getCreateTime() != null && c.getCreateTime().isAfter(monthStart)
                         && c.getAuditStatus() != null && c.getAuditStatus() == 2)
                 .map(c -> c.getTotalAmount() == null ? BigDecimal.ZERO : c.getTotalAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-        m.put("monthReceived", cts.isEmpty() ? BigDecimal.ZERO : paymentMapper.selectList(
-                        new LambdaQueryWrapper<CrmPayment>().in(CrmPayment::getContractId,
-                                        cts.stream().map(CrmContract::getId).collect(Collectors.toList()))
-                                .eq(CrmPayment::getAuditStatus, 1)
-                                .ge(CrmPayment::getReturnTime, monthStart.toLocalDate()))
-                .stream().map(p -> p.getAmount() == null ? BigDecimal.ZERO : p.getAmount())
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        BigDecimal monthReceived = BigDecimal.ZERO;
+        if (!cts.isEmpty()) {
+            monthReceived = paymentMapper.selectList(new LambdaQueryWrapper<CrmPayment>()
+                            .in(custIds != null, CrmPayment::getContractId,
+                                    cts.stream().map(CrmContract::getId).collect(Collectors.toList()))
+                            .eq(CrmPayment::getAuditStatus, 1)
+                            .ge(CrmPayment::getReturnTime, monthStart.toLocalDate()))
+                    .stream().map(p -> p.getAmount() == null ? BigDecimal.ZERO : p.getAmount())
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        m.put("monthReceived", monthReceived);
 
         // 临期/逾期合同（已通过审核，按到期日）
         LocalDate today = LocalDate.now();
@@ -119,11 +123,11 @@ public class StatsController {
     @GetMapping("/payment-trend")
     public R<List<Map<String, Object>>> paymentTrend(@RequestParam(defaultValue = "6") int months) {
         List<Long> custIds = visibleCustomerIds();
-        if (custIds.isEmpty()) {
+        if (custIds != null && custIds.isEmpty()) {
             return R.ok(Collections.emptyList());
         }
         List<CrmContract> cts = contractMapper.selectList(
-                new LambdaQueryWrapper<CrmContract>().in(CrmContract::getCustomerId, custIds));
+                new LambdaQueryWrapper<CrmContract>().in(custIds != null, CrmContract::getCustomerId, custIds));
         LocalDate first = LocalDate.now().withDayOfMonth(1).minusMonths(months - 1);
         Map<String, BigDecimal> contractByMonth = new HashMap<>();
         for (CrmContract c : cts) {
@@ -136,7 +140,8 @@ public class StatsController {
         Map<String, BigDecimal> payByMonth = new HashMap<>();
         if (!cts.isEmpty()) {
             for (CrmPayment p : paymentMapper.selectList(new LambdaQueryWrapper<CrmPayment>()
-                    .in(CrmPayment::getContractId, cts.stream().map(CrmContract::getId).collect(Collectors.toList()))
+                    .in(custIds != null, CrmPayment::getContractId,
+                            cts.stream().map(CrmContract::getId).collect(Collectors.toList()))
                     .eq(CrmPayment::getAuditStatus, 1)
                     .isNotNull(CrmPayment::getReturnTime)
                     .ge(CrmPayment::getReturnTime, first))) {
@@ -160,11 +165,11 @@ public class StatsController {
     @GetMapping("/customer-dist")
     public R<List<Map<String, Object>>> customerDist(@RequestParam(defaultValue = "source") String dim) {
         List<Long> custIds = visibleCustomerIds();
-        if (custIds.isEmpty()) {
+        if (custIds != null && custIds.isEmpty()) {
             return R.ok(Collections.emptyList());
         }
         List<CrmCustomer> list = customerMapper.selectList(
-                new LambdaQueryWrapper<CrmCustomer>().in(CrmCustomer::getId, custIds));
+                new LambdaQueryWrapper<CrmCustomer>().in(custIds != null, CrmCustomer::getId, custIds));
         Map<Integer, Long> by = list.stream().filter(c -> dim.equals("industry")
                         ? c.getIndustry() != null : c.getSource() != null)
                 .collect(Collectors.groupingBy(dim.equals("industry") ? CrmCustomer::getIndustry : CrmCustomer::getSource,
@@ -184,12 +189,12 @@ public class StatsController {
     @GetMapping("/customer-trend")
     public R<List<Map<String, Object>>> customerTrend(@RequestParam(defaultValue = "30") int days) {
         List<Long> custIds = visibleCustomerIds();
-        if (custIds.isEmpty()) {
+        if (custIds != null && custIds.isEmpty()) {
             return R.ok(Collections.emptyList());
         }
         LocalDateTime start = LocalDate.now().minusDays(days).atStartOfDay();
         List<CrmCustomer> list = customerMapper.selectList(new LambdaQueryWrapper<CrmCustomer>()
-                .in(CrmCustomer::getId, custIds).ge(CrmCustomer::getCreateTime, start));
+                .in(custIds != null, CrmCustomer::getId, custIds).ge(CrmCustomer::getCreateTime, start));
         Map<String, Long> byDay = list.stream().collect(Collectors.groupingBy(
                 c -> c.getCreateTime().toLocalDate().format(DF), Collectors.counting()));
         List<Map<String, Object>> r = new ArrayList<>();
@@ -207,11 +212,11 @@ public class StatsController {
     @GetMapping("/opp-funnel")
     public R<List<Map<String, Object>>> oppFunnel() {
         List<Long> custIds = visibleCustomerIds();
-        if (custIds.isEmpty()) {
+        if (custIds != null && custIds.isEmpty()) {
             return R.ok(Collections.emptyList());
         }
         List<CrmOpportunity> opps = oppMapper.selectList(
-                new LambdaQueryWrapper<CrmOpportunity>().in(CrmOpportunity::getCustomerId, custIds)
+                new LambdaQueryWrapper<CrmOpportunity>().in(custIds != null, CrmOpportunity::getCustomerId, custIds)
                         .isNull(CrmOpportunity::getEndStatus));
         Map<Long, List<CrmOpportunity>> byStage = opps.stream()
                 .filter(o -> o.getStageId() != null)
@@ -256,11 +261,13 @@ public class StatsController {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * 可见客户 id 列表：null = 超管不限量（查询时不拼 IN，全表口径），
+     * 空列表 = 普通用户无可见客户（调用方直接返回空结果）
+     */
     private List<Long> visibleCustomerIds() {
-        // 超管（* 通配权限）看全局，普通用户看团队可见范围
         if (StpUtil.getPermissionList().contains("*")) {
-            return customerMapper.selectList(null).stream()
-                    .map(CrmCustomer::getId).collect(Collectors.toList());
+            return null;
         }
         return teamService.listMemberBizIds(LeadServiceImpl.BIZ_CUSTOMER,
                 StpUtil.getLoginIdAsLong());

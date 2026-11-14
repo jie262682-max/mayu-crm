@@ -113,6 +113,6 @@ public class CustomerController {
     @SaCheckPermission("sys:user:list")
     @com.freecrm.common.log.OpLog(module = "系统设置", action = "手动执行公海回收")
     public R<java.util.Map<String, Integer>> recycleNow() {
-        return R.ok(poolRecycleService.recycleNow());
+        return R.ok(poolRecycleService.recycleNow(true));
     }
 }

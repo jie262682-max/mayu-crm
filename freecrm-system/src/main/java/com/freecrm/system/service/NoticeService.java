@@ -17,6 +17,7 @@ import com.freecrm.system.entity.SysNotice;
 import com.freecrm.system.mapper.SysNoticeMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** 站内信：发送 / 我的消息 / 未读数 / 已读 */
@@ -68,6 +69,16 @@ public class NoticeService {
                     .eq(SysNotice::getId, id).eq(SysNotice::getUserId, userId)
                     .set(SysNotice::getReadFlag, 1));
         }
+    }
+
+    /** 近 N 天内是否已发过同标题同业务单通知（定时任务去重，避免每天重复打扰） */
+    public boolean sentRecently(long userId, String title, Integer bizType, Long bizId, int days) {
+        return noticeMapper.selectCount(new LambdaQueryWrapper<SysNotice>()
+                .eq(SysNotice::getUserId, userId)
+                .eq(SysNotice::getTitle, title)
+                .eq(bizType != null, SysNotice::getBizType, bizType)
+                .eq(bizId != null, SysNotice::getBizId, bizId)
+                .ge(SysNotice::getCreateTime, LocalDateTime.now().minusDays(days))) > 0;
     }
 
     /** 给一批用户发（审批人多人在用） */

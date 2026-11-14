@@ -23,11 +23,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class PoolRecycleServiceImpl implements PoolRecycleService {
 
     private static final Logger log = LoggerFactory.getLogger(PoolRecycleServiceImpl.class);
+
+    /** 回收执行互斥：定时 Job 与手动按钮并发触发时后来者直接跳过，防止双发通知 */
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private final CrmCustomerMapper customerMapper;
     private final TeamService teamService;
@@ -81,31 +85,45 @@ public class PoolRecycleServiceImpl implements PoolRecycleService {
 
     @Override
     public Map<String, Integer> recycleNow() {
+        return recycleNow(false);
+    }
+
+    /** manual=true 为管理页手动触发（仅影响日志文案） */
+    public Map<String, Integer> recycleNow(boolean manual) {
+        Map<String, Integer> skipped = new HashMap<>();
+        skipped.put("noContact", 0);
+        skipped.put("expire", 0);
+        skipped.put("skipped", 1);
         if (!enabled()) {
-            Map<String, Integer> r = new HashMap<>();
-            r.put("noContact", 0);
-            r.put("expire", 0);
-            r.put("skipped", 1);
-            return r;
+            return skipped;
         }
-        int recycleDays = configService.getInt("pool.recycle.days", 30);
-        int expireDays = configService.getInt("pool.expire.days", 90);
-        int protectDays = configService.getInt("pool.protect.days", 7);
+        if (!running.compareAndSet(false, true)) {
+            log.info("公海回收已在执行中，本次触发跳过");
+            return skipped;
+        }
+        try {
+            int recycleDays = configService.getInt("pool.recycle.days", 30);
+            int expireDays = configService.getInt("pool.expire.days", 90);
+            int protectDays = configService.getInt("pool.protect.days", 7);
 
-        int n1 = doRecycle(candidates(protectDays).stream()
-                .filter(c -> daysSince(c.getLastContactTime() != null ? c.getLastContactTime() : c.getCreateTime()) >= recycleDays)
-                .collect(java.util.stream.Collectors.toList()),
-                "掉保回收（超过 " + recycleDays + " 天未跟进）");
-        int n2 = doRecycle(candidates(protectDays).stream()
-                .filter(c -> daysSince(c.getCreateTime()) >= expireDays)
-                .collect(java.util.stream.Collectors.toList()),
-                "超期回收（创建超过 " + expireDays + " 天未成交）");
+            List<CrmCustomer> candidates = candidates(protectDays); // 只查一次，两规则共用
+            int n1 = doRecycle(candidates.stream()
+                    .filter(c -> daysSince(c.getLastContactTime() != null ? c.getLastContactTime() : c.getCreateTime()) >= recycleDays)
+                    .collect(java.util.stream.Collectors.toList()),
+                    "掉保回收（超过 " + recycleDays + " 天未跟进）");
+            int n2 = doRecycle(candidates.stream()
+                    .filter(c -> daysSince(c.getCreateTime()) >= expireDays)
+                    .collect(java.util.stream.Collectors.toList()),
+                    "超期回收（创建超过 " + expireDays + " 天未成交）");
 
-        Map<String, Integer> r = new HashMap<>();
-        r.put("noContact", n1);
-        r.put("expire", n2);
-        log.info("公海回收完成：掉保 {} 个，超期 {} 个（手动触发）", n1, n2);
-        return r;
+            Map<String, Integer> r = new HashMap<>();
+            r.put("noContact", n1);
+            r.put("expire", n2);
+            log.info("公海回收完成：掉保 {} 个，超期 {} 个（{}）", n1, n2, manual ? "手动触发" : "定时任务");
+            return r;
+        } finally {
+            running.set(false);
+        }
     }
 
     public boolean enabled() {
