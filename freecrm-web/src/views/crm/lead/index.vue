@@ -5,9 +5,14 @@
 <template>
   <el-card>
     <div style="margin-bottom:12px;display:flex;gap:8px">
+      <el-radio-group v-model="scope" @change="load">
+        <el-radio-button value="mine">我的线索</el-radio-button>
+        <el-radio-button value="pool">线索池</el-radio-button>
+      </el-radio-group>
       <el-input v-model="kw" placeholder="线索名称/联系人" style="width:220px" clearable @keyup.enter="load" />
       <el-button type="primary" @click="load">查询</el-button>
       <el-button type="primary" plain @click="openForm()">新建线索</el-button>
+      <el-button v-if="scope === 'pool'" type="warning" plain @click="recycleNow">手动回收超期线索</el-button>
     </div>
     <el-table :data="rows" border stripe>
       <el-table-column prop="id" label="ID" width="70" />
@@ -25,12 +30,18 @@
         </template>
       </el-table-column>
       <el-table-column prop="nextContactTime" label="下次联系" width="160" />
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="240">
         <template #default="{ row }">
-          <el-button link type="primary" @click="openForm(row)">编辑</el-button>
-          <el-button v-if="row.transformStatus !== 1" link type="success" @click="transform(row)">转客户</el-button>
-          <el-button link type="warning" @click="openFollow(row)">跟进</el-button>
-          <el-button link type="danger" @click="del(row)">删除</el-button>
+          <template v-if="scope === 'pool'">
+            <el-button link type="success" @click="receive(row)">领取</el-button>
+          </template>
+          <template v-else>
+            <el-button link type="primary" @click="openForm(row)">编辑</el-button>
+            <el-button v-if="row.transformStatus !== 1" link type="success" @click="transform(row)">转客户</el-button>
+            <el-button link type="warning" @click="openFollow(row)">跟进</el-button>
+            <el-button v-if="row.transformStatus !== 1" link type="info" @click="putPool(row)">放回池</el-button>
+            <el-button link type="danger" @click="del(row)">删除</el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -94,7 +105,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 const SOURCES = ['广告', '搜索引擎', '转介绍', '电话陌拜', '其他']
 const TYPES = ['电话', '微信', '上门', '邮件', '其他']
 
-const rows = ref([]); const total = ref(0); const pageNo = ref(1); const kw = ref('')
+const rows = ref([]); const total = ref(0); const pageNo = ref(1); const kw = ref(''); const scope = ref('mine')
 const dlg = ref(false)
 const form = reactive({})
 const followDlg = ref(false)
@@ -106,8 +117,21 @@ const sourceName = s => SOURCES[s - 1] || '-'
 const typeName = t => TYPES[t - 1] || '其他'
 
 async function load() {
-  const p = await http.get('/api/crm/lead/page', { params: { pageNo: pageNo.value, pageSize: 10, keyword: kw.value || undefined } })
+  const p = await http.get('/api/crm/lead/page', { params: { pageNo: pageNo.value, pageSize: 10, keyword: kw.value || undefined, pool: scope.value === 'pool' ? true : undefined } })
   rows.value = p.records; total.value = Number(p.total)
+}
+async function receive(row) {
+  await http.put(`/api/crm/lead/receive?id=${row.id}`)
+  ElMessage.success('已领取'); load()
+}
+async function putPool(row) {
+  await ElMessageBox.confirm(`将线索「${row.name}」放回线索池？`, '提示', { type: 'warning' })
+  await http.put(`/api/crm/lead/put-pool?id=${row.id}`)
+  ElMessage.success('已放回线索池'); load()
+}
+async function recycleNow() {
+  const r = await http.post('/api/crm/lead/pool/recycle-now')
+  ElMessage.success(`回收完成：${r.recycled || 0} 条`); load()
 }
 function openForm(row) {
   Object.keys(form).forEach(k => delete form[k])

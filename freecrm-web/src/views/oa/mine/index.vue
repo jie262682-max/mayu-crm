@@ -19,9 +19,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="发起时间" width="165" />
-      <el-table-column label="操作" width="150">
+      <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <el-button link @click="showTasks(row)">轨迹</el-button>
+          <el-button v-if="row.status === 0" link type="primary" @click="urge(row)">催办</el-button>
           <el-button v-if="row.status === 0" link type="warning" @click="withdraw(row)">撤回</el-button>
         </template>
       </el-table-column>
@@ -60,6 +61,10 @@ async function withdraw(row) {
   await ElMessageBox.confirm('撤回该申请？', '提示', { type: 'warning' })
   await http.put(`/api/oa/flow/withdraw?instanceId=${row.id}`)
   ElMessage.success('已撤回'); load()
+}
+async function urge(row) {
+  const sent = await http.put(`/api/oa/flow/urge?instanceId=${row.id}`)
+  ElMessage.success(sent ? '已提醒当前审批人' : '24 小时内已催过，跳过')
 }
 onMounted(load)
 </script>

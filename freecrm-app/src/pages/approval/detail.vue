@@ -65,6 +65,12 @@
         <button class="b reject" @click="audit(false)">驳 回</button>
         <button class="b pass" @click="audit(true)">同 意</button>
       </view>
+      <button class="tfbtn" @click="transfer">↗ 转交给他人审批</button>
+    </view>
+
+    <!-- 催办（申请人本人，进行中） -->
+    <view v-if="inst.status === 0 && myUserId && String(inst.applicantUserId) === String(myUserId)" class="card">
+      <button class="uckbtn" @click="urge">⏰ 催办（提醒当前审批人）</button>
     </view>
   </view>
 </template>
@@ -82,7 +88,7 @@ const BIZ_API = {
 export default {
   data() {
     return {
-      taskId: null, bizType: 0,
+      taskId: null, bizType: 0, myUserId: null,
       inst: {}, biz: null, contract: null, tasks: [], opinion: '',
       BIZ_NAMES: { 1: '合同审批', 2: '回款审批', 3: '请假审批' },
       INST_STATUS: ['审批中', '已通过', '已驳回'],
@@ -91,6 +97,7 @@ export default {
   },
   onLoad(q) {
     this.taskId = q.taskId || null
+    try { this.myUserId = uni.getStorageSync('user').userId } catch (e) { this.myUserId = null }
     this.load(q.instanceId)
   },
   methods: {
@@ -114,6 +121,26 @@ export default {
         this.taskId = null
         this.opinion = ''
         this.load(this.inst.id)
+      } catch (e) { /* toast 已提示 */ }
+    },
+    async transfer() {
+      try {
+        const users = await http.get('/api/user/simple-list')
+        const names = users.map(u => u.nickname)
+        const { tapIndex } = await new Promise((resolve, reject) =>
+          uni.showActionSheet({ itemList: names, success: resolve, fail: reject }))
+        await http.put('/api/oa/flow/transfer', {
+          taskId: this.taskId, toUserId: users[tapIndex].id
+        })
+        uni.showToast({ icon: 'success', title: '已转交' })
+        this.taskId = null
+        this.load(this.inst.id)
+      } catch (e) { /* 取消或失败 */ }
+    },
+    async urge() {
+      try {
+        const sent = await http.put('/api/oa/flow/urge', { instanceId: this.inst.id })
+        uni.showToast({ icon: 'none', title: sent ? '已提醒审批人' : '24小时内已催过' })
       } catch (e) { /* toast 已提示 */ }
     }
   }

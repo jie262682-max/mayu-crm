@@ -1,4 +1,6 @@
 target/
+# 前端「目标管理」页目录名 target 撞 Maven 构建目录，白名单放行
+!freecrm-web/src/views/crm/target/
 node_modules/
 dist/
 *.log

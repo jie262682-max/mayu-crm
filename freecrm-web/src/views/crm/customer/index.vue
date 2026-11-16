@@ -59,6 +59,12 @@
         <el-form-item label="手机"><el-input v-model="form.mobile" /></el-form-item>
         <el-form-item label="邮箱"><el-input v-model="form.email" /></el-form-item>
         <el-form-item label="地址"><el-input v-model="form.address" /></el-form-item>
+        <el-form-item label="经纬度">
+          <div style="display:flex;gap:6px;width:100%">
+            <el-input v-model="form.addressLng" placeholder="经度（选填，签到距离）" />
+            <el-input v-model="form.addressLat" placeholder="纬度（选填，签到距离）" />
+          </div>
+        </el-form-item>
         <el-form-item label="等级">
           <el-select v-model="form.level" style="width:100%">
             <el-option v-for="(n, i) in ['A', 'B', 'C', 'D']" :key="n" :label="n" :value="i + 1" />

@@ -25,6 +25,8 @@ public class CrmContact extends BaseEntity {
     private String mobile;
     private String email;
     private String post;
+    /** 生日（关怀提醒） */
+    private java.time.LocalDate birthday;
     /** 1决策者2影响者3使用者4教练 */
     private Integer decisionRole;
     private String remark;

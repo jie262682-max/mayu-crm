@@ -37,6 +37,7 @@
       <el-table-column label="操作" width="300">
         <template #default="{ row }">
           <el-button link type="primary" @click="openForm(row)">编辑</el-button>
+          <el-button link @click="showLabel(row)">标签</el-button>
           <el-button v-if="row.status === 0" link type="success" @click="op('/receive', row, '领用')">领用</el-button>
           <el-button v-if="row.status === 1" link type="warning" @click="op('/give-back', row, '退回')">退回</el-button>
           <el-button v-if="row.status === 1" link type="warning" @click="op('/lend', row, '借出', true)">借出</el-button>
@@ -73,10 +74,25 @@
         <el-button type="primary" @click="save">保存</el-button>
       </template>
     </el-dialog>
+      <el-dialog v-model="labelDlg" title="资产标签" width="480px">
+      <div id="label-print" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+        <div v-for="n in labelCount" :key="n" class="asset-label">
+          <img :src="qrDataUrl" style="width:110px;height:110px" />
+          <div style="font-size:12px;font-weight:bold">{{ labelRow.name }}</div>
+          <div style="font-size:11px;color:#333">{{ labelRow.assetNo }}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px">打印枚数</span>
+        <el-input-number v-model="labelCount" :min="1" :max="60" size="small" style="width:100px" />
+        <el-button type="primary" size="small" @click="printLabels">打印</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
+import QRCode from 'qrcode'
 import http from '../../../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -154,5 +170,23 @@ async function showChanges(row) {
     p.records.map(c => `[${c.changeTime}] ${names[c.type]}：${c.fromUserId || '-'} → ${c.toUserId || '-'} ${c.reason || ''}`).join('<br>') || '无记录',
     `变更历史 - ${row.assetNo}`, { dangerouslyUseHTMLString: true })
 }
+const labelDlg = ref(false); const labelRow = ref({}); const qrDataUrl = ref(''); const labelCount = ref(1)
+async function showLabel(row) {
+  labelRow.value = row
+  qrDataUrl.value = await QRCode.toDataURL(row.assetNo, { width: 220, margin: 1 })
+  labelCount.value = 1
+  labelDlg.value = true
+}
+function printLabels() {
+  const html = document.getElementById('label-print').innerHTML
+  const w = window.open('', '_blank')
+  w.document.write(`<html><head><title>资产标签</title><style>
+    body{font-family:"Microsoft YaHei";padding:12px;display:flex;flex-wrap:wrap;gap:8px}
+    .asset-label{border:1px solid #000;width:130px;padding:8px;text-align:center;page-break-inside:avoid}
+    @media print{body{gap:6mm}}
+  </style></head><body>${html}</body></html>`)
+  w.document.close(); w.print()
+}
+
 onMounted(() => { loadUsers(); loadCats(); load() })
 </script>

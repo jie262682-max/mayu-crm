@@ -27,4 +27,10 @@ public interface LeadService {
 
     /** 线索转客户：建客户+联系人+迁移跟进记录+回写转化状态 */
     Long transform(Long id);
+
+    /** 领取公海线索 */
+    void receive(Long id);
+
+    /** 放回线索池 */
+    void putPool(Long id);
 }

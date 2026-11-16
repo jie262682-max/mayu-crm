@@ -11,6 +11,7 @@ package com.freecrm.crm.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.freecrm.common.exception.BizException;
 import com.freecrm.crm.entity.CrmContact;
@@ -24,6 +25,8 @@ import com.freecrm.crm.mapper.CrmLeadMapper;
 import com.freecrm.crm.service.LeadService;
 import com.freecrm.crm.service.TeamService;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -87,6 +90,42 @@ public class LeadServiceImpl implements LeadService {
         }
         teamService.checkPermission(BIZ_LEAD, id, TeamServiceImpl.READ);
         return lead;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void receive(Long id) {
+        CrmLead lead = leadMapper.selectById(id);
+        if (lead == null) {
+            throw new BizException("线索不存在");
+        }
+        if (lead.getOwnerUserId() != null) {
+            throw new BizException("线索已有负责人：" + lead.getName());
+        }
+        long userId = StpUtil.getLoginIdAsLong();
+        leadMapper.update(null, new LambdaUpdateWrapper<CrmLead>()
+                .eq(CrmLead::getId, id)
+                .set(CrmLead::getOwnerUserId, userId)
+                .set(CrmLead::getOwnerTime, LocalDateTime.now()));
+        teamService.addOwner(BIZ_LEAD, id, userId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void putPool(Long id) {
+        CrmLead lead = leadMapper.selectById(id);
+        if (lead == null) {
+            throw new BizException("线索不存在");
+        }
+        teamService.checkPermission(BIZ_LEAD, id, TeamServiceImpl.OWNER);
+        if (lead.getTransformStatus() != null && lead.getTransformStatus() == 1) {
+            throw new BizException("已转化线索不能放回线索池");
+        }
+        leadMapper.update(null, new LambdaUpdateWrapper<CrmLead>()
+                .eq(CrmLead::getId, id)
+                .set(CrmLead::getOwnerUserId, null)
+                .set(CrmLead::getOwnerTime, null));
+        teamService.deleteByBiz(BIZ_LEAD, id);
     }
 
     @Override

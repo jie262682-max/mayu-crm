@@ -133,7 +133,7 @@ public class FlowEngine {
 
     /** 审批一个任务：或签任一通过即过级；会签需全部通过 */
     @Transactional(rollbackFor = Exception.class)
-    public void audit(long taskId, boolean pass, String opinion) {
+    public void audit(long taskId, boolean pass, String opinion, long operatorUserId, boolean bypass) {
         OaFlowTask task = taskMapper.selectById(taskId);
         if (task == null || task.getStatus() != 0) {
             throw new BizException("任务不存在或已处理");
@@ -144,6 +144,9 @@ public class FlowEngine {
         }
         if (task.getNodeLevel() != inst.getCurrentLevel()) {
             throw new BizException("非当前节点任务");
+        }
+        if (!bypass && !task.getApproverUserId().equals(operatorUserId)) {
+            throw new BizException("只有当前审批人可以审批");
         }
         // 记录本任务
         OaFlowTask tUpd = new OaFlowTask();
@@ -193,6 +196,57 @@ public class FlowEngine {
             throw new BizException("只有申请人可撤回");
         }
         finish(inst, WITHDRAWN);
+    }
+
+    /** 催办：申请人通知当前待办审批人（1 天内已催过则跳过，防轰炸） */
+    @Transactional(rollbackFor = Exception.class)
+    public boolean urge(long instanceId, long operatorUserId) {
+        OaFlowInstance inst = instMapper.selectById(instanceId);
+        if (inst == null || inst.getStatus() != RUNNING) {
+            throw new BizException("流程不存在或已结束");
+        }
+        if (!inst.getApplicantUserId().equals(operatorUserId)) {
+            throw new BizException("只有申请人可以催办");
+        }
+        boolean sent = false;
+        for (OaFlowTask t : taskMapper.selectList(new LambdaQueryWrapper<OaFlowTask>()
+                .eq(OaFlowTask::getInstanceId, instanceId)
+                .eq(OaFlowTask::getNodeLevel, inst.getCurrentLevel())
+                .eq(OaFlowTask::getStatus, 0))) {
+            if (noticeService.sentRecently(t.getApproverUserId(), "审批催办",
+                    inst.getBizType(), inst.getBizId(), 1)) {
+                continue;
+            }
+            noticeService.send(t.getApproverUserId(), "审批催办",
+                    "申请人催请您尽快审批：" + inst.getBizTitle(), 1, inst.getBizType(), inst.getBizId());
+            sent = true;
+        }
+        return sent;
+    }
+
+    /** 转交：当前审批人把待办转给他人（bypass=超管豁免本人校验） */
+    @Transactional(rollbackFor = Exception.class)
+    public void transfer(long taskId, long toUserId, long operatorUserId, boolean bypass) {
+        OaFlowTask t = taskMapper.selectById(taskId);
+        if (t == null || t.getStatus() != 0) {
+            throw new BizException("任务不存在或已处理");
+        }
+        OaFlowInstance inst = instMapper.selectById(t.getInstanceId());
+        if (inst == null || inst.getStatus() != RUNNING || t.getNodeLevel() != inst.getCurrentLevel()) {
+            throw new BizException("流程已结束或非当前节点");
+        }
+        if (!bypass && !t.getApproverUserId().equals(operatorUserId)) {
+            throw new BizException("只有当前审批人可以转交");
+        }
+        if (toUserId == t.getApproverUserId()) {
+            throw new BizException("转交对象不能是本人");
+        }
+        OaFlowTask upd = new OaFlowTask();
+        upd.setId(taskId);
+        upd.setApproverUserId(toUserId);
+        taskMapper.updateById(upd);
+        noticeService.send(toUserId, "审批转交",
+                "有审批单转交给您：" + inst.getBizTitle(), 1, inst.getBizType(), inst.getBizId());
     }
 
     /** 我的待办 */

@@ -28,9 +28,13 @@ public class ContactController {
     private final CrmContactMapper contactMapper;
     private final TeamService teamService;
 
-    public ContactController(CrmContactMapper contactMapper, TeamService teamService) {
+    private final com.freecrm.crm.job.BirthdayRemindJob birthdayRemindJob;
+
+    public ContactController(CrmContactMapper contactMapper, TeamService teamService,
+                             com.freecrm.crm.job.BirthdayRemindJob birthdayRemindJob) {
         this.contactMapper = contactMapper;
         this.teamService = teamService;
+        this.birthdayRemindJob = birthdayRemindJob;
     }
 
     @GetMapping("/page")
@@ -67,6 +71,14 @@ public class ContactController {
     @SaCheckPermission("crm:contact:delete")
     public R<Void> delete(@RequestParam Long id) {
         contactMapper.deleteById(id);
+        return R.ok();
+    }
+
+    /** 手动触发生日关怀提醒（管理员；每日 08:20 自动） */
+    @PostMapping("/birthday-remind")
+    @SaCheckPermission("sys:user:list")
+    public R<Void> birthdayRemind() {
+        birthdayRemindJob.run();
         return R.ok();
     }
 }

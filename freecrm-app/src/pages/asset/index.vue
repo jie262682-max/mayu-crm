@@ -7,6 +7,9 @@
     <view class="search">
       <input v-model="kw" class="ipt" placeholder="资产名称/编号" confirm-type="search" @confirm="reload" />
       <button class="sbtn" size="mini" @click="reload">搜索</button>
+      <!-- #ifdef MP-WEIXIN || APP-PLUS -->
+      <button class="sbtn scan" size="mini" @click="scan">扫码</button>
+      <!-- #endif -->
     </view>
     <view class="chips">
       <text v-for="(n, i) in ['全部', '闲置', '在用', '维修', '报废']" :key="i"
@@ -44,6 +47,12 @@ export default {
     if (!this.finished && !this.loading) this.load()
   },
   methods: {
+    scan() {
+      uni.scanCode({
+        success: res => { this.kw = res.result; this.reload() },
+        fail: () => {}
+      })
+    },
     async reload() {
       this.pageNo = 1; this.finished = false; this.rows = []
       this.load()

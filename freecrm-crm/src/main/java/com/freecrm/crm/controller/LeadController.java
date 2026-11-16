@@ -14,7 +14,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.freecrm.common.result.R;
 import com.freecrm.crm.entity.CrmLead;
 import com.freecrm.crm.service.LeadService;
+import com.freecrm.crm.service.impl.LeadPoolRecycleServiceImpl;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crm/lead")
@@ -22,8 +26,11 @@ public class LeadController {
 
     private final LeadService leadService;
 
-    public LeadController(LeadService leadService) {
+    private final LeadPoolRecycleServiceImpl leadPoolRecycleService;
+
+    public LeadController(LeadService leadService, LeadPoolRecycleServiceImpl leadPoolRecycleService) {
         this.leadService = leadService;
+        this.leadPoolRecycleService = leadPoolRecycleService;
     }
 
     @GetMapping("/page")
@@ -62,5 +69,33 @@ public class LeadController {
     public R<Void> delete(@RequestParam Long id) {
         leadService.delete(id);
         return R.ok();
+    }
+
+    // ---- 线索池 ----
+
+    @PutMapping("/receive")
+    @SaCheckPermission("crm:lead:transform")
+    public R<Void> receive(@RequestParam Long id) {
+        leadService.receive(id);
+        return R.ok();
+    }
+
+    @PutMapping("/put-pool")
+    @SaCheckPermission("crm:lead:save")
+    public R<Void> putPool(@RequestParam Long id) {
+        leadService.putPool(id);
+        return R.ok();
+    }
+
+    @GetMapping("/pool/recycle-preview")
+    @SaCheckPermission("crm:lead:list")
+    public R<List<Map<String, Object>>> poolPreview() {
+        return R.ok(leadPoolRecycleService.preview());
+    }
+
+    @PostMapping("/pool/recycle-now")
+    @SaCheckPermission("crm:lead:list")
+    public R<Map<String, Integer>> poolRecycleNow() {
+        return R.ok(leadPoolRecycleService.recycleNow(true));
     }
 }

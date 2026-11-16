@@ -32,6 +32,8 @@ public class CrmLead extends BaseEntity {
     private String remark;
     /** 负责人，NULL=公海 */
     private Long ownerUserId;
+    /** 领取/转移时间（线索池保护期依据） */
+    private LocalDateTime ownerTime;
     /** 0未转化1已转化 */
     private Integer transformStatus;
     private Long customerId;

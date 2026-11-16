@@ -28,6 +28,9 @@
         <el-form-item label="客户ID"><el-input-number v-model="form.customerId" :min="1" style="width:100%" /></el-form-item>
         <el-form-item label="手机"><el-input v-model="form.mobile" /></el-form-item>
         <el-form-item label="职务"><el-input v-model="form.post" /></el-form-item>
+        <el-form-item label="生日">
+          <el-date-picker v-model="form.birthday" type="date" value-format="YYYY-MM-DD" style="width:100%" />
+        </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="form.decisionRole" style="width:100%">
             <el-option v-for="(n, i) in ['决策者', '影响者', '使用者', '教练']" :key="n" :label="n" :value="i + 1" />

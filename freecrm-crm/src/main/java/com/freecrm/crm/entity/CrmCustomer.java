@@ -14,6 +14,7 @@ import com.freecrm.common.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /** 客户 */
@@ -28,6 +29,9 @@ public class CrmCustomer extends BaseEntity {
     private String email;
     private String website;
     private String address;
+    /** 客户地址经纬度（拜访签到距离校验，选填） */
+    private BigDecimal addressLng;
+    private BigDecimal addressLat;
     private String remark;
     private Integer source;
     private Integer industry;

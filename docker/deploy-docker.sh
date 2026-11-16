@@ -7,7 +7,9 @@ cd "$(dirname "$0")/.."
 
 SQL_ORDER="freecrm-schema freecrm-crm freecrm-m3 freecrm-oa freecrm-eam \
            freecrm-m11 freecrm-m15-menu freecrm-eam-menu freecrm-m16 \
-           freecrm-w2 freecrm-w3 freecrm-w3-menu freecrm-w6 freecrm-demo-data"
+           freecrm-w2 freecrm-w3 freecrm-w3-menu freecrm-w6 \
+           freecrm-f1 freecrm-f2 freecrm-f3 freecrm-f5 freecrm-f6 freecrm-f7 \
+           freecrm-demo-data"
 
 echo "==> 1/4 启动 MySQL/Redis ..."
 docker compose up -d mysql redis

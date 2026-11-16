@@ -13,6 +13,7 @@
       <view class="kv"><text class="k">成交状态</text><text>{{ c.dealStatus === 1 ? '已成交' : '未成交' }}</text></view>
       <view class="kv"><text class="k">下次联系</text><text>{{ c.nextContactTime || '-' }}</text></view>
       <view class="kv"><text class="k">备注</text><text>{{ c.remark || '-' }}</text></view>
+      <button class="ckbtn" :loading="checking" @click="doCheckin">📍 到场签到</button>
     </view>
 
     <!-- 写跟进 -->
@@ -77,6 +78,7 @@ export default {
       fu: { type: 1, content: '' }, nfFiles: [],
       nextDate: '',
       sending: false,
+      checking: false,
       custId: null
     }
   },
@@ -85,6 +87,31 @@ export default {
     this.load(query.id)
   },
   methods: {
+    async doCheckin() {
+      this.checking = true
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          uni.getLocation({
+            type: 'gcj02',
+            success: resolve,
+            fail: () => reject(new Error('定位失败，请检查定位权限'))
+          })
+        })
+        const ck = await http.post('/api/crm/checkin/do', {
+          customerId: this.custId,
+          lng: pos.longitude,
+          lat: pos.latitude,
+          remark: ''
+        })
+        uni.showToast({ icon: 'success',
+          title: ck.distance != null ? ('签到成功 距' + ck.distance + '米') : '签到成功' })
+        this.load(this.custId)
+      } catch (e) {
+        uni.showToast({ icon: 'none', title: e.message || '签到失败' })
+      } finally {
+        this.checking = false
+      }
+    },
     async load(id) {
       this.c = await http.get('/api/crm/customer/get', { id })
       const p = await http.get('/api/crm/follow-up/page', { pageNo: 1, pageSize: 20, bizType: 2, bizId: id })
@@ -225,6 +252,7 @@ export default {
 <style>
 .h { font-size: 36rpx; font-weight: bold; margin-bottom: 16rpx; }
 .h2 { font-size: 30rpx; font-weight: bold; margin-bottom: 12rpx; }
+.ckbtn { background: #e8f7ee; color: #18a058; font-size: 28rpx; border-radius: 12rpx; margin-top: 16rpx; }
 .kv { display: flex; padding: 10rpx 0; font-size: 28rpx; }
 .k { width: 160rpx; color: #999; flex-shrink: 0; }
 .types { display: flex; gap: 16rpx; margin-bottom: 16rpx; }

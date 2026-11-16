@@ -132,13 +132,28 @@ public class FlowController {
     @PutMapping("/audit")
     public R<Void> audit(@RequestParam Long taskId, @RequestParam boolean pass,
                          @RequestParam(required = false) String opinion) {
-        flowEngine.audit(taskId, pass, opinion);
+        boolean admin = StpUtil.getPermissionList().contains("*");
+        flowEngine.audit(taskId, pass, opinion, StpUtil.getLoginIdAsLong(), admin);
         return R.ok();
     }
 
     @PutMapping("/withdraw")
     public R<Void> withdraw(@RequestParam Long instanceId) {
         flowEngine.withdraw(instanceId, StpUtil.getLoginIdAsLong());
+        return R.ok();
+    }
+
+    /** 催办：申请人催当前审批人（1 天去重） */
+    @PutMapping("/urge")
+    public R<Boolean> urge(@RequestParam Long instanceId) {
+        return R.ok(flowEngine.urge(instanceId, StpUtil.getLoginIdAsLong()));
+    }
+
+    /** 转交：当前审批人把待办转给他人 */
+    @PutMapping("/transfer")
+    public R<Void> transfer(@RequestParam Long taskId, @RequestParam Long toUserId) {
+        boolean admin = StpUtil.getPermissionList().contains("*");
+        flowEngine.transfer(taskId, toUserId, StpUtil.getLoginIdAsLong(), admin);
         return R.ok();
     }
 

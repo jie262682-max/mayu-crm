@@ -9,10 +9,11 @@
       <el-table-column prop="instanceId" label="流程实例" width="90" />
       <el-table-column prop="nodeLevel" label="节点" width="70" />
       <el-table-column prop="createTime" label="到达时间" width="170" />
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="220">
         <template #default="{ row }">
           <el-button link type="success" @click="audit(row, true)">通过</el-button>
           <el-button link type="danger" @click="audit(row, false)">驳回</el-button>
+          <el-button link type="primary" @click="transfer(row)">转交</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -23,7 +24,7 @@ import { onMounted, ref } from 'vue'
 import http from '../../../api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-const rows = ref([])
+const rows = ref([]); const users = ref([])
 
 async function load() {
   rows.value = await http.get('/api/oa/flow/todo')
@@ -36,6 +37,27 @@ async function audit(row, pass) {
   await http.put(`/api/oa/flow/audit?taskId=${row.id}&pass=${pass}&opinion=${encodeURIComponent(value || '')}`)
   ElMessage.success('已审批')
   load()
+}
+async function transfer(row) {
+  if (!users.value.length) {
+    users.value = await http.get('/api/user/simple-list')
+  }
+  await ElMessageBox({
+    title: '转交审批',
+    message: `<select id="tf-user" style="width:100%;height:32px;border:1px solid #dcdfe6;border-radius:4px;padding:0 8px">
+      ${users.value.map(u => `<option value="${u.id}">${u.nickname}（${u.username || u.id}）</option>`).join('')}
+    </select>`,
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: '转交',
+    showCancelButton: true,
+    callback: async action => {
+      if (action !== 'confirm') return
+      const to = document.getElementById('tf-user').value
+      await http.put(`/api/oa/flow/transfer?taskId=${row.id}&toUserId=${to}`)
+      ElMessage.success('已转交')
+      load()
+    }
+  })
 }
 onMounted(load)
 </script>

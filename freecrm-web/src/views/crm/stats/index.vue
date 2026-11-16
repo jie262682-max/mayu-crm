@@ -22,6 +22,40 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-row :gutter="12" style="margin-bottom:16px" v-if="target.mine || (target.rank && target.rank.length)">
+      <el-col :span="10">
+        <el-card shadow="hover">
+          <template #header>我的本月目标</template>
+          <template v-if="target.mine">
+            <el-progress type="circle" :percentage="Math.min(100, Math.round(target.mine.rate || 0))" :width="90"
+                         :color="(target.mine.rate || 0) >= 100 ? '#67C23A' : '#409EFF'" />
+            <div style="margin-top:8px;font-size:13px;color:#666">
+              目标 <b>{{ target.mine.target }}</b> 元　已完成 <b style="color:#409EFF">{{ target.mine.actual }}</b> 元
+              <span v-if="target.mine.rate != null" :style="{ color: target.mine.rate >= 100 ? '#67C23A' : '#666' }">（{{ target.mine.rate }}%）</span>
+            </div>
+          </template>
+          <div v-else style="color:#999;font-size:13px;padding:20px 0">本月未设目标</div>
+        </el-card>
+      </el-col>
+      <el-col :span="14">
+        <el-card shadow="never">
+          <template #header>目标达成榜（本月）</template>
+          <el-table :data="target.rank" size="small" max-height="200">
+            <el-table-column label="用户" width="120">
+              <template #default="{ row }">{{ userName(row.userId) }}</template>
+            </el-table-column>
+            <el-table-column prop="target" label="目标（元）" width="130" />
+            <el-table-column prop="actual" label="实际（元）" width="130" />
+            <el-table-column label="完成率">
+              <template #default="{ row }">
+                <el-tag v-if="row.rate == null" type="info" size="small">—</el-tag>
+                <el-tag v-else :type="row.rate >= 100 ? 'success' : row.rate >= 60 ? '' : 'warning'" size="small">{{ row.rate }}%</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
     <el-row :gutter="12">
       <el-col :span="14">
         <el-card shadow="never">
@@ -79,6 +113,12 @@ const cards2 = ref([
   { label: '本月回款额', value: '-' }, { label: '30 天内到期合同', value: '-', sub: '' }
 ])
 const funnel = ref([])
+const target = ref({ mine: null, rank: [] })
+const users = ref([])
+const userName = id => {
+  const u = users.value.find(x => x.id === id)
+  return u ? u.nickname : ('用户' + id)
+}
 const distDim = ref('source')
 const trendEl = ref(); const rankEl = ref(); const payTrendEl = ref(); const distEl = ref()
 // 字典与 crm_customer.source 注释对齐；industry 为自由字典，超界回退 #key
@@ -86,10 +126,13 @@ const SOURCE_NAMES = ['未知', '广告', '搜索引擎', '转介绍', '电话�
 const INDUSTRY_NAMES = ['未知', '互联网/IT', '智能制造', '机械设备', '物流运输', '医疗健康']
 
 onMounted(async () => {
-  const [s, users] = await Promise.all([
+  const [s, us, tg] = await Promise.all([
     http.get('/api/crm/stats/summary'),
-    http.get('/api/user/simple-list').catch(() => [])
+    http.get('/api/user/simple-list').catch(() => []),
+    http.get('/api/crm/target/progress').catch(() => ({ mine: null, rank: [] }))
   ])
+  users.value = us || []
+  target.value = tg
   cards1.value[0].value = s.customers
   cards1.value[1].value = s.oppAmount
   cards1.value[2].value = s.contractAmount
@@ -110,10 +153,7 @@ onMounted(async () => {
     series: [{ type: 'line', smooth: true, areaStyle: {}, data: trend.map(p => p.count) }]
   })
 
-  const name = id => {
-    const u = (users || []).find(x => x.id === id)
-    return u ? u.nickname : ('用户' + id)
-  }
+  const name = userName
   const rank = await http.get('/api/crm/stats/sales-rank')
   echarts.init(rankEl.value).setOption({
     tooltip: { trigger: 'axis' },
